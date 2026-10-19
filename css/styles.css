@@ -534,3 +534,196 @@ select:focus, textarea:focus { border-color: var(--accent); outline: none; box-s
   .pentad-meta { align-items: flex-start; flex-direction: column; gap: 3px; }
   .pentad-load-zone { width: 100%; }
 }
+
+/* 科学性说明、学习画像与误区辨析 */
+.pentad-science-note {
+  max-width: 1080px;
+  margin: -22px auto 30px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--gold);
+  border-radius: 0 14px 14px 0;
+  background: color-mix(in srgb, var(--season-soft) 28%, transparent);
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.75;
+}
+.pentad-science-note strong { color: var(--ink); }
+.learning-profile {
+  margin-top: 22px;
+  padding: 15px 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--season-soft) 32%, transparent);
+}
+.learning-profile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--accent-deep);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .1em;
+}
+.learning-profile-head small { color: var(--muted); font-size: 9px; font-weight: 500; letter-spacing: .02em; }
+.learning-bars, .quiz-mastery .learning-bars { display: grid; gap: 8px; margin-top: 12px; }
+.mastery-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+.mastery-row b { text-align: right; color: var(--ink); font-size: 10px; }
+.mastery-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(23, 39, 45, .1);
+}
+.mastery-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: width .5s ease;
+}
+.learning-recommendation {
+  margin: 12px 0 0 !important;
+  color: var(--ink-soft) !important;
+  font-size: 10px !important;
+  line-height: 1.65 !important;
+}
+.quiz-result { display: block; min-height: 0; text-align: left; }
+.quiz-result-inner { display: grid; gap: 3px; }
+.quiz-result .quiz-score { text-align: center; }
+.quiz-result > .quiz-result-inner > p:first-of-type { text-align: center; }
+.quiz-mastery {
+  margin-top: 18px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: rgba(255,255,255,.25);
+}
+.quiz-mastery .mastery-row { grid-template-columns: 38px minmax(0, 1fr) 38px; }
+.quiz-recommendation {
+  margin: 13px 0 0 !important;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--season-soft) 38%, transparent);
+  color: var(--ink-soft) !important;
+  font-size: 10px !important;
+  line-height: 1.7 !important;
+}
+.quiz-result-inner > .button { justify-self: center; margin-top: 20px; }
+.myth-section { margin-top: clamp(54px, 7vw, 96px); }
+.myth-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .7fr);
+  align-items: end;
+  gap: clamp(24px, 5vw, 72px);
+  max-width: 1320px;
+  margin: 0 auto 24px;
+}
+.myth-heading h3 {
+  margin: 7px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(30px, 4vw, 50px);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: 1.16;
+}
+.myth-heading > p {
+  margin: 0 0 4px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.myth-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 1320px;
+  margin: 0 auto;
+  align-items: start;
+}
+.myth-card {
+  display: block;
+  min-height: 174px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--paper-light) 62%, transparent);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .22s ease, background .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.myth-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 48%, transparent); box-shadow: var(--shadow-card); }
+.myth-card.is-open { border-color: var(--accent); background: color-mix(in srgb, var(--season-soft) 34%, var(--paper-light)); }
+.myth-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.myth-tag { padding: 3px 8px; border-radius: 999px; background: var(--season-soft); color: var(--season-ink); font-size: 8px; font-weight: 750; letter-spacing: .08em; }
+.myth-toggle { color: var(--muted); font-size: 9px; }
+.myth-question {
+  display: block;
+  margin-top: 18px;
+  font-family: var(--serif);
+  font-size: clamp(18px, 1.8vw, 23px);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.myth-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: 0;
+  transition: grid-template-rows .28s ease, opacity .22s ease, margin-top .28s ease;
+}
+.myth-answer-inner { overflow: hidden; display: grid; gap: 7px; }
+.myth-answer strong { display: block; padding-top: 14px; color: var(--accent-deep); font-size: 11px; line-height: 1.65; }
+.myth-answer-inner > span { display: block; color: var(--ink-soft); font-size: 10px; line-height: 1.75; }
+.myth-card.is-open .myth-answer { grid-template-rows: 1fr; opacity: 1; margin-top: 2px; }
+.source-panel {
+  max-width: 1320px;
+  margin: 28px auto 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255,255,255,.2);
+}
+.source-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 22px;
+  cursor: pointer;
+  list-style: none;
+}
+.source-panel summary::-webkit-details-marker { display: none; }
+.source-panel summary span { font-family: var(--serif); font-size: 19px; font-weight: 600; }
+.source-panel summary small { color: var(--muted); font-size: 9px; }
+.source-panel summary::after { content: "+"; color: var(--accent-deep); font-size: 22px; }
+.source-panel[open] summary::after { content: "−"; }
+.source-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 0 22px 22px;
+}
+.source-content > div { padding: 15px 16px; border-top: 1px solid var(--line); }
+.source-content h4 { margin: 0 0 7px; color: var(--accent-deep); font-size: 11px; font-weight: 750; letter-spacing: .06em; }
+.source-content p { margin: 0; color: var(--ink-soft); font-size: 10px; line-height: 1.75; }
+@media (max-width: 1000px) {
+  .myth-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .myth-heading { grid-template-columns: 1fr; gap: 12px; }
+}
+@media (max-width: 760px) {
+  .pentad-science-note { margin-top: -10px; }
+  .myth-grid, .source-content { grid-template-columns: 1fr; }
+  .myth-card { min-height: 0; }
+  .source-panel summary { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .source-panel summary::after { position: absolute; right: 22px; }
+  .source-panel summary { position: relative; }
+}
+.learning-profile[hidden] { display: none !important; }

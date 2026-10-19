@@ -8,7 +8,7 @@
   <title>时间之书 · 二十四节气天文与物候科普</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/styles.css?v=20261019-3">
+  <link rel="stylesheet" href="css/styles.css?v=20261019-4">
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -122,6 +122,8 @@
         </div>
       </header>
 
+      <p class="pentad-science-note"><strong>阅读提示：</strong>七十二候是古代物候观察记录，部分表述来自当时的地域经验与想象，不能直接等同于现代气象或生物学标准。点开物候卡时，请结合节气详情中的科学解释阅读。</p>
+
       <div class="pentad-tools">
         <label class="pentad-search" for="pentadSearch">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
@@ -189,6 +191,14 @@
             </div>
             <span class="quiz-progress" id="quizProgress">1 / 8</span>
           </div>
+          <div class="learning-profile" id="learningProfile" hidden>
+            <div class="learning-profile-head">
+              <span>最近学习画像</span>
+              <small id="learningProfileDate"></small>
+            </div>
+            <div class="learning-bars" id="learningProfileBars"></div>
+            <p class="learning-recommendation" id="learningRecommendation"></p>
+          </div>
           <div class="quiz-body" id="quizBody"></div>
           <div class="quiz-footer">
             <span id="quizFeedback" role="status" aria-live="polite"></span>
@@ -196,6 +206,42 @@
           </div>
         </article>
       </div>
+
+      <section class="myth-section" id="scienceMyths" aria-labelledby="myth-title">
+        <div class="myth-heading">
+          <div>
+            <div class="card-label">科学辨析</div>
+            <h3 id="myth-title">这些关于节气的说法，是真的吗？</h3>
+          </div>
+          <p>点击卡片展开解释。区分历法规律、天文事实、古代物候记录和现代气象标准，是这个科普作品最重要的一步。</p>
+        </div>
+        <div class="myth-grid" id="mythGrid"></div>
+      </section>
+
+      <details class="source-panel" id="sourcePanel">
+        <summary>
+          <span>资料与科学性说明</span>
+          <small>节气、七十二候、天文算法与诗句来源</small>
+        </summary>
+        <div class="source-content">
+          <div>
+            <h4>节气与七十二候</h4>
+            <p>二十四节气名称、顺序和七十二候按公开通行的中国传统历法资料整理。七十二候属于古代物候观察体系，受地域、年代和观察条件影响，部分表述带有比喻或想象成分，不作为现代气象、农业或生物学结论使用。</p>
+          </div>
+          <div>
+            <h4>天文计算</h4>
+            <p>页面中的太阳视黄经与交节时刻由前端低阶天文近似算法计算，用于交互演示和科普说明。正式历算、交节时刻和节气日期，以中国科学院紫金山天文台等权威机构发布的历书为准。</p>
+          </div>
+          <div>
+            <h4>诗句与视觉素材</h4>
+            <p>古典诗句来自公版古典文学作品，页面标注作者与篇名；正式提交前仍需逐条核对版本和断句。当前视觉由 CSS、SVG 与 Canvas 原创绘制，未使用来源不明的第三方图片。</p>
+          </div>
+          <div>
+            <h4>使用边界</h4>
+            <p>本作品适合传统文化、天文与自然观察学习，不构成医疗、养生、农事或气象预报建议。涉及真实生产与健康决策时，应以专业机构和当期预报为准。</p>
+          </div>
+        </div>
+      </details>
     </section>
 
     <section class="section journal-section" id="journal" aria-labelledby="journal-title">
@@ -263,8 +309,8 @@
     <div class="noscript">本作品需要启用 JavaScript 才能使用节令盘、知识测验和观察手账。</div>
   </noscript>
 
-  <script src="js/data.js?v=20261019-3" defer></script>
-  <script src="js/app.js?v=20261019-3" defer></script>
+  <script src="js/data.js?v=20261019-4" defer></script>
+  <script src="js/app.js?v=20261019-4" defer></script>
 </body>
 </html>
 

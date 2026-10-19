@@ -1,10 +1,10 @@
-const CACHE = 'timebook-v3';
+const CACHE = 'timebook-v4';
 const ASSETS = [
   './',
   './index.html',
-  './css/styles.css?v=20261019-3',
-  './js/data.js?v=20261019-3',
-  './js/app.js?v=20261019-3',
+  './css/styles.css?v=20261019-4',
+  './js/data.js?v=20261019-4',
+  './js/app.js?v=20261019-4',
   './manifest.webmanifest',
   './assets/icon.svg'
 ];

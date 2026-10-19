@@ -7,7 +7,9 @@
   const DAY_MS = 86400000;
   const RAD = Math.PI / 180;
   const STORAGE_KEY = 'timebook.journal.v1';
+  const LEARNING_STORAGE_KEY = 'timebook.learning.v1';
   const quizLength = 8;
+  const DIMENSIONS = { astronomy: '天文', phenology: '物候', culture: '文化' };
   const PENTAD_PAGE_SIZE = 4;
 
   const state = {
@@ -20,6 +22,7 @@
     pentadVisibleCount: PENTAD_PAGE_SIZE,
     pentadLoadArmed: false,
     journal: loadJournal(),
+    learningProfile: loadLearningProfile(),
     quiz: null
   };
 
@@ -450,68 +453,208 @@
     return shuffle([correct, ...others]);
   }
 
+  function createDimensionStats() {
+    return Object.fromEntries(Object.keys(DIMENSIONS).map(key => [key, { correct: 0, total: 0 }]));
+  }
+
   function buildQuiz() {
     const termNames = TERMS.map(term => term.name);
-    const pentadQuestions = shuffle(TERMS).slice(0, 3).map(term => {
+    const pentadQuestions = shuffle(TERMS).slice(0, 4).map(term => {
       const pentad = term.pentads[Math.floor(Math.random() * term.pentads.length)];
       return {
+        dimension: 'phenology',
         prompt: `“${pentad.name}”属于哪个节气？`,
         options: makeOptions(term.name, termNames),
         correct: term.name,
         explain: `“${pentad.name}”是${term.name}的三候之一：${pentad.note}`
       };
     });
-    const bank = [
+
+    const astronomyBank = [
       {
-        prompt: '二十四节气中，排在第一的是哪一个？',
-        options: makeOptions('立春', termNames),
-        correct: '立春',
-        explain: '立春是二十四节气之首，太阳到达黄经315°时交节。'
-      },
-      {
+        dimension: 'astronomy',
         prompt: '北半球白昼通常最长的是哪一个节气？',
         options: makeOptions('夏至', termNames),
         correct: '夏至',
         explain: '夏至时太阳直射北回归线，北半球白昼达到全年最长。'
       },
       {
+        dimension: 'astronomy',
         prompt: '北半球白昼通常最短的是哪一个节气？',
         options: makeOptions('冬至', termNames),
         correct: '冬至',
         explain: '冬至时太阳直射南回归线，北半球白昼达到全年最短。'
       },
       {
+        dimension: 'astronomy',
         prompt: '太阳视黄经为0°时，对应哪一个节气？',
         options: makeOptions('春分', termNames),
         correct: '春分',
         explain: '春分时太阳黄经为0°，太阳直射赤道，昼夜接近等长。'
       },
       {
+        dimension: 'astronomy',
         prompt: '太阳视黄经为90°时，对应哪一个节气？',
         options: makeOptions('夏至', termNames),
         correct: '夏至',
         explain: '夏至的太阳视黄经为90°，太阳直射点位于北回归线附近。'
       },
       {
+        dimension: 'astronomy',
         prompt: '太阳黄经每变化多少度，进入下一个节气？',
         options: ['10°', '15°', '20°', '30°'],
         correct: '15°',
-        explain: '一个回归年约360°，分为24个节气，每个节气对应太阳黄经变化15°。'
+        explain: '一个回归年约360°，分为二十四节气，每个节气对应太阳黄经变化15°。'
       },
       {
+        dimension: 'astronomy',
+        prompt: '太阳直射赤道、昼夜接近等长，最接近哪两个节气？',
+        options: ['春分与秋分', '夏至与冬至', '立春与立秋', '小满与大暑'],
+        correct: '春分与秋分',
+        explain: '春分和秋分的太阳视黄经分别为0°和180°，太阳直射赤道附近。'
+      }
+    ];
+
+    const phenologyBank = [
+      {
+        dimension: 'phenology',
         prompt: '按照传统物候体系，一个节气包含几候？',
         options: ['2候', '3候', '4候', '5候'],
         correct: '3候',
         explain: '五日为一候，三候为一个节气，二十四节气共对应七十二候。'
       },
       {
+        dimension: 'phenology',
+        prompt: '以下哪一项属于立春的初候？',
+        options: makeOptions('东风解冻', ['东风解冻', '桃始华', '鹿角解', '水始冰']),
+        correct: '东风解冻',
+        explain: '立春三候为“东风解冻、蛰虫始振、鱼陟负冰”。'
+      },
+      {
+        dimension: 'phenology',
+        prompt: '“腐草为萤”被列在哪个节气的物候中？',
+        options: makeOptions('大暑', termNames),
+        correct: '大暑',
+        explain: '“腐草为萤”是大暑初候，反映古人对萤火虫出现时节的观察与想象。'
+      }
+    ];
+
+    const cultureBank = [
+      {
+        dimension: 'culture',
+        prompt: '“清明时节雨纷纷”描写的是哪个节气？',
+        options: makeOptions('清明', termNames),
+        correct: '清明',
+        explain: '这句诗出自杜牧《清明》，清明兼具节气与节日的文化属性。'
+      },
+      {
+        dimension: 'culture',
+        prompt: '“咬春”“打春牛”主要对应哪个节气？',
+        options: makeOptions('立春', termNames),
+        correct: '立春',
+        explain: '立春有迎春、咬春、打春牛等传统习俗，表达对春耕和丰收的期盼。'
+      },
+      {
+        dimension: 'culture',
+        prompt: '冬至时节常见的“吃饺子、吃汤圆”属于哪类文化内容？',
+        options: ['饮食习俗', '天文观测', '物候记录', '农具制作'],
+        correct: '饮食习俗',
+        explain: '不同地区在冬至形成吃饺子、汤圆等饮食传统，体现节气与日常生活的联系。'
+      },
+      {
+        dimension: 'culture',
         prompt: '“雨生百谷”描述的是哪一个节气？',
         options: makeOptions('谷雨', termNames),
         correct: '谷雨',
         explain: '谷雨是春季最后一个节气，降水增多，适宜谷物生长。'
       }
     ];
-    return shuffle([...bank, ...pentadQuestions]).slice(0, quizLength);
+
+    const pick = (pool, count) => shuffle(pool).slice(0, count);
+    return shuffle([
+      ...pick(astronomyBank, 3),
+      ...pick([...phenologyBank, ...pentadQuestions], 3),
+      ...pick(cultureBank, 2)
+    ]);
+  }
+
+  function loadLearningProfile() {
+    try {
+      const profile = JSON.parse(localStorage.getItem(LEARNING_STORAGE_KEY) || 'null');
+      if (!profile || !profile.dimensions) return null;
+      return profile;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function masteryRatio(stats) {
+    if (!stats || !stats.total) return 0;
+    return stats.correct / stats.total;
+  }
+
+  function masteryBarsHTML(dimensions) {
+    return Object.entries(DIMENSIONS).map(([key, label]) => {
+      const percent = Math.round(masteryRatio(dimensions[key]) * 100);
+      return `
+        <div class="mastery-row">
+          <span>${label}</span>
+          <div class="mastery-track"><i style="width:${percent}%"></i></div>
+          <b>${percent}%</b>
+        </div>`;
+    }).join('');
+  }
+
+  function recommendationFor(dimensions) {
+    const entries = Object.entries(DIMENSIONS)
+      .filter(([key]) => dimensions[key]?.total)
+      .map(([key, label]) => ({ key, label, ratio: masteryRatio(dimensions[key]) }))
+      .sort((a, b) => a.ratio - b.ratio);
+    if (!entries.length) return '完成一轮练习后，系统会根据答题情况给出复习建议。';
+    if (entries[0].ratio >= 0.8) return '三个维度掌握较稳，可以进入观察手账，把知识转化为真实记录。';
+    const advice = {
+      astronomy: '回到节令盘，比较春分、夏至、秋分、冬至的太阳黄经与直射点。',
+      phenology: '复习七十二候，重点观察同一节气三候之间的连续变化。',
+      culture: '阅读节气详情中的农事、习俗与诗句，把名称和传统生活联系起来。'
+    };
+    return `建议先复习${entries[0].label}维度：${advice[entries[0].key]}`;
+  }
+
+  function renderLearningProfile(profile = state.learningProfile) {
+    const wrap = $('#learningProfile');
+    if (!wrap) return;
+    if (!profile || !profile.dimensions) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    const date = $('#learningProfileDate');
+    if (date) {
+      date.textContent = profile.date
+        ? new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric' }).format(new Date(profile.date))
+        : '';
+    }
+    const bars = $('#learningProfileBars');
+    if (bars) bars.innerHTML = masteryBarsHTML(profile.dimensions);
+    const recommendation = $('#learningRecommendation');
+    if (recommendation) recommendation.textContent = profile.recommendation || recommendationFor(profile.dimensions);
+  }
+
+  function saveLearningProfile(quiz) {
+    const profile = {
+      date: new Date().toISOString(),
+      score: quiz.score,
+      total: quiz.questions.length,
+      dimensions: JSON.parse(JSON.stringify(quiz.dimensions)),
+      recommendation: recommendationFor(quiz.dimensions)
+    };
+    state.learningProfile = profile;
+    renderLearningProfile(profile);
+    try {
+      localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(profile));
+    } catch (error) {
+      // The learning result still remains available for the current page visit.
+    }
   }
 
   function startQuiz() {
@@ -520,7 +663,9 @@
       index: 0,
       score: 0,
       answered: false,
-      selected: null
+      selected: null,
+      dimensions: createDimensionStats(),
+      saved: false
     };
     renderQuiz();
   }
@@ -533,6 +678,10 @@
     if (!state.quiz) return;
     const quiz = state.quiz;
     if (quiz.index >= quiz.questions.length) {
+      if (!quiz.saved) {
+        quiz.saved = true;
+        saveLearningProfile(quiz);
+      }
       const ratio = quiz.score / quiz.questions.length;
       let message = '再读一遍物候，你会发现时间留下的线索。';
       if (ratio >= 0.9) message = '你已经能用天文位置和物候变化解释节气了。';
@@ -540,9 +689,14 @@
       progress.textContent = '完成';
       body.innerHTML = `
         <div class="quiz-result">
-          <div>
+          <div class="quiz-result-inner">
             <div class="quiz-score">${quiz.score} / ${quiz.questions.length}</div>
             <p>${message}</p>
+            <div class="quiz-mastery">
+              <div class="card-label">本轮掌握度</div>
+              ${masteryBarsHTML(quiz.dimensions)}
+            </div>
+            <p class="quiz-recommendation">${escapeHTML(recommendationFor(quiz.dimensions))}</p>
             <button class="button button-primary" type="button" id="quizRestartBtn">重新练习</button>
           </div>
         </div>`;
@@ -582,7 +736,12 @@
     const question = quiz.questions[quiz.index];
     quiz.answered = true;
     quiz.selected = option;
-    if (option === question.correct) quiz.score += 1;
+    const stats = quiz.dimensions[question.dimension];
+    if (stats) stats.total += 1;
+    if (option === question.correct) {
+      quiz.score += 1;
+      if (stats) stats.correct += 1;
+    }
     renderQuiz();
   }
 
@@ -594,6 +753,42 @@
     quiz.selected = null;
     renderQuiz();
   }
+  function renderMyths() {
+    const grid = $('#mythGrid');
+    if (!grid) return;
+    grid.innerHTML = (DATA.misconceptions || []).map((item, index) => `
+      <button class="myth-card" type="button" data-myth-id="${item.id}"
+        aria-expanded="false" aria-controls="myth-answer-${item.id}">
+        <span class="myth-card-top">
+          <span class="myth-tag">${escapeHTML(item.tag)}</span>
+          <span class="myth-toggle">展开解释 +</span>
+        </span>
+        <span class="myth-question">${escapeHTML(item.myth)}</span>
+        <span class="myth-answer" id="myth-answer-${item.id}">
+          <span class="myth-answer-inner">
+            <strong>${escapeHTML(item.truth)}</strong>
+            <span>${escapeHTML(item.explain)}</span>
+          </span>
+        </span>
+      </button>`).join('');
+  }
+
+  function toggleMythCard(card) {
+    const shouldOpen = !card.classList.contains('is-open');
+    $$('.myth-card').forEach(other => {
+      other.classList.remove('is-open');
+      other.setAttribute('aria-expanded', 'false');
+      const toggle = $('.myth-toggle', other);
+      if (toggle) toggle.textContent = '展开解释 +';
+    });
+    if (shouldOpen) {
+      card.classList.add('is-open');
+      card.setAttribute('aria-expanded', 'true');
+      const toggle = $('.myth-toggle', card);
+      if (toggle) toggle.textContent = '收起解释 −';
+    }
+  }
+
   function loadJournal() {
     try {
       const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -976,6 +1171,10 @@
       if (button) answerQuiz(button.dataset.option);
     });
     $('#quizNextBtn')?.addEventListener('click', nextQuiz);
+    $('#mythGrid')?.addEventListener('click', event => {
+      const card = event.target.closest('.myth-card');
+      if (card) toggleMythCard(card);
+    });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) refreshLive();
     });
@@ -1002,6 +1201,8 @@
     refreshLive();
     setupPentadObserver();
     if (!state.selectedTermId) selectTerm(state.currentTermId);
+    renderMyths();
+    renderLearningProfile();
     startQuiz();
     renderJournalEntries();
     refreshNoteCount();
