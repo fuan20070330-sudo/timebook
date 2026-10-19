@@ -727,3 +727,176 @@ select:focus, textarea:focus { border-color: var(--accent); outline: none; box-s
   .source-panel summary { position: relative; }
 }
 .learning-profile[hidden] { display: none !important; }
+
+/* 学习路径、黄经刻度与来源标记 */
+.method-strip {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: 1320px;
+  margin: -36px auto 0;
+  padding: 0 var(--page-pad);
+}
+.method-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 11px;
+  align-items: center;
+  padding: 15px 18px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper-light) 76%, transparent);
+  backdrop-filter: blur(14px);
+}
+.method-step:first-child { border-radius: 16px 0 0 16px; }
+.method-step:last-child { border-radius: 0 16px 16px 0; }
+.method-step + .method-step { border-left: 0; }
+.method-step > span {
+  grid-row: span 2;
+  color: var(--accent-deep);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+.method-step strong { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+.method-step small { color: var(--muted); font-size: 9px; }
+.solar-ruler {
+  position: relative;
+  margin-top: 22px;
+  padding-top: 17px;
+}
+.solar-ruler-track {
+  position: relative;
+  height: 23px;
+  border-top: 1px solid var(--line-strong);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(2.5% - 1px), var(--line) calc(2.5% - 1px) 2.5%),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 35%, transparent), color-mix(in srgb, var(--gold) 38%, transparent));
+  background-size: 100% 6px, 100% 2px;
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 0;
+}
+.solar-ruler-marker {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  width: 2px;
+  height: 42px;
+  background: var(--cinnabar);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cinnabar) 12%, transparent);
+  transition: left .5s ease;
+}
+.solar-ruler-marker::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--cinnabar);
+  transform: translateX(-50%);
+}
+.solar-ruler-marker span {
+  position: absolute;
+  left: 7px;
+  top: -7px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--paper-light);
+  color: var(--cinnabar);
+  font-size: 8px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.solar-ruler-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 7px;
+  letter-spacing: .02em;
+}
+.journal-conditions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 22px 0 0;
+  padding: 0;
+  border: 0;
+}
+.journal-conditions legend {
+  margin-bottom: 9px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .12em;
+}
+.journal-conditions label { display: grid; gap: 5px; }
+.journal-conditions label > span { color: var(--muted); font-size: 9px; }
+.journal-conditions select { padding: 10px 11px; font-size: 11px; }
+.entry-conditions,
+.entry-pentads { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.entry-conditions span {
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 8px;
+}
+.term-source-line {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.source-id {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 17%, transparent);
+  color: var(--accent-deep);
+  font-family: var(--sans);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  vertical-align: middle;
+}
+.source-jump {
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-deep);
+  cursor: pointer;
+  font-size: 9px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pentad-source-id { margin-left: 4px; }
+.term-poem cite .source-id { margin-left: 5px; }
+.source-link-line { margin-top: 7px !important; }
+.source-link-line a { color: var(--accent-deep); text-underline-offset: 3px; }
+.learning-review-btn { justify-self: start; margin-top: 10px; }
+@media (max-width: 900px) {
+  .method-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: -28px; }
+  .method-step:nth-child(2) { border-radius: 0 16px 0 0; }
+  .method-step:nth-child(3) { border-radius: 0 0 0 16px; border-left: 1px solid var(--line); border-top: 0; }
+  .method-step:nth-child(4) { border-radius: 0 0 16px 0; border-top: 0; }
+  .journal-conditions { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .method-strip { grid-template-columns: 1fr; padding: 0 20px; }
+  .method-step, .method-step:first-child, .method-step:nth-child(2), .method-step:nth-child(3), .method-step:nth-child(4) { border-radius: 0; border-left: 1px solid var(--line); border-top: 0; }
+  .method-step:first-child { border-radius: 16px 16px 0 0; border-top: 1px solid var(--line); }
+  .method-step:last-child { border-radius: 0 0 16px 16px; }
+  .journal-conditions { grid-template-columns: 1fr; }
+  .solar-ruler-labels span:nth-child(even) { display: none; }
+}

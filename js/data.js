@@ -396,6 +396,30 @@ const TIMEBOOK_DATA = {
       ]
     }
   ],
+  sourceCatalog: {
+    S1: {
+      label: '节气名称与顺序', short: '节气资料',
+      detail: '二十四节气名称、顺序和公历大致日期按公开通行的中国传统历法资料整理。',
+      url: 'https://ich.unesco.org/en/RL/the-twenty-four-solar-terms-knowledge-in-china-of-time-and-practices-developed-through-observation-of-the-suns-annual-motion-00646'
+    },
+    S2: {
+      label: '七十二候', short: '七十二候资料',
+      detail: '七十二候名称与物候说明按公开通行的传统物候资料整理；部分内容带有地域经验和比喻性想象。'
+    },
+    S3: {
+      label: '古典诗句', short: '公版诗文',
+      detail: '诗句来自公版古典文学作品，页面标注作者与篇名；正式提交前需逐条核对版本与断句。'
+    },
+    S4: {
+      label: '太阳视黄经算法', short: '天文算法',
+      detail: '太阳视黄经、太阳直射点和交节时刻由前端低阶天文近似算法计算；正式历算以紫金山天文台等权威历书为准。',
+      url: 'https://www.pmo.cas.cn/'
+    },
+    S5: {
+      label: '当代科普说明', short: '科普说明',
+      detail: '农事、生活与科学解释为面向公众学习场景的整理性说明，不替代专业气象、农业或医疗建议。'
+    }
+  },
   misconceptions: [
     {
       id: 'lunar-calendar', tag: '历法',

@@ -8,7 +8,7 @@
   <title>时间之书：二十四节气的天文与物候科普</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/styles.css?v=20261019-5">
+  <link rel="stylesheet" href="css/styles.css?v=20261019-6">
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -75,6 +75,13 @@
         </div>
       </div>
     </section>
+
+    <div class="method-strip" aria-label="作品学习路径">
+      <div class="method-step"><span>01</span><strong>观时</strong><small>太阳黄经与四季</small></div>
+      <div class="method-step"><span>02</span><strong>识候</strong><small>七十二候与物候</small></div>
+      <div class="method-step"><span>03</span><strong>辨误</strong><small>科学解释与辨析</small></div>
+      <div class="method-step"><span>04</span><strong>记录</strong><small>观察手账与节气卡</small></div>
+    </div>
 
     <section class="section wheel-section" id="wheel" aria-labelledby="wheel-title">
       <header class="section-heading">
@@ -177,6 +184,14 @@
             <div><dt>太阳直射点</dt><dd id="scienceDeclination">—</dd></div>
             <div><dt>下一节气</dt><dd id="scienceNextTerm">—</dd></div>
           </dl>
+          <div class="solar-ruler" id="solarRuler" role="img" aria-label="太阳黄经刻度尺">
+            <div class="solar-ruler-track">
+              <i class="solar-ruler-marker" id="solarRulerMarker"><span id="solarRulerValue">—</span></i>
+            </div>
+            <div class="solar-ruler-labels">
+              <span>0° 春分</span><span>90° 夏至</span><span>180° 秋分</span><span>270° 冬至</span><span>360° 春分</span>
+            </div>
+          </div>
           <div class="observation-prompt">
             <span>今日观察</span>
             <p id="observationPrompt">留意天空、风向和植物的变化，把它们写进观察手账。</p>
@@ -198,6 +213,7 @@
             </div>
             <div class="learning-bars" id="learningProfileBars"></div>
             <p class="learning-recommendation" id="learningRecommendation"></p>
+            <button class="button button-small button-ghost learning-review-btn" id="learningReviewBtn" type="button" hidden></button>
           </div>
           <div class="quiz-body" id="quizBody"></div>
           <div class="quiz-footer">
@@ -225,20 +241,30 @@
         </summary>
         <div class="source-content">
           <div>
-            <h4>节气与七十二候</h4>
-            <p>二十四节气名称、顺序和七十二候按公开通行的中国传统历法资料整理。七十二候属于古代物候观察体系，受地域、年代和观察条件影响，部分表述带有比喻或想象成分，不作为现代气象、农业或生物学结论使用。</p>
+            <h4><span class="source-id">S1</span> 节气名称与顺序</h4>
+            <p>二十四节气名称、顺序和公历大致日期按公开通行的中国传统历法资料整理。联合国教科文组织于 2016 年将“二十四节气”列入人类非物质文化遗产代表作名录。</p>
+            <p class="source-link-line"><a href="https://ich.unesco.org/en/RL/the-twenty-four-solar-terms-knowledge-in-china-of-time-and-practices-developed-through-observation-of-the-suns-annual-motion-00646" target="_blank" rel="noreferrer">UNESCO 条目 ↗</a></p>
           </div>
           <div>
-            <h4>天文计算</h4>
-            <p>页面中的太阳视黄经与交节时刻由前端低阶天文近似算法计算，用于交互演示和科普说明。正式历算、交节时刻和节气日期，以中国科学院紫金山天文台等权威机构发布的历书为准。</p>
+            <h4><span class="source-id">S2</span> 七十二候</h4>
+            <p>七十二候名称与物候说明按公开通行的传统物候资料整理。它属于古代物候观察体系，受地域、年代和观察条件影响，部分表述带有比喻或想象成分。</p>
           </div>
           <div>
-            <h4>诗句与视觉素材</h4>
-            <p>古典诗句来自公版古典文学作品，页面标注作者与篇名；正式提交前仍需逐条核对版本和断句。当前视觉由 CSS、SVG 与 Canvas 原创绘制，未使用来源不明的第三方图片。</p>
+            <h4><span class="source-id">S3</span> 古典诗句</h4>
+            <p>诗句来自公版古典文学作品，页面标注作者与篇名。正式提交前仍需逐条核对版本、作者归属和断句。</p>
           </div>
           <div>
-            <h4>使用边界</h4>
-            <p>本作品适合传统文化、天文与自然观察学习，不构成医疗、养生、农事或气象预报建议。涉及真实生产与健康决策时，应以专业机构和当期预报为准。</p>
+            <h4><span class="source-id">S4</span> 天文计算</h4>
+            <p>太阳视黄经、太阳直射点和交节时刻由前端低阶天文近似算法计算，用于交互演示。正式历算以中国科学院紫金山天文台等权威机构发布的历书为准。</p>
+            <p class="source-link-line"><a href="https://www.pmo.cas.cn/" target="_blank" rel="noreferrer">中国科学院紫金山天文台 ↗</a></p>
+          </div>
+          <div>
+            <h4><span class="source-id">S5</span> 当代科普说明</h4>
+            <p>农事、生活与科学解释为面向公众学习场景的整理性说明，不替代专业气象、农业、医疗或健康建议。</p>
+          </div>
+          <div>
+            <h4>视觉素材与使用边界</h4>
+            <p>当前视觉由 CSS、SVG 与 Canvas 原创绘制，未使用来源不明的第三方图片。作品适合传统文化、天文与自然观察学习，涉及真实生产与健康决策时，应以专业机构和当期预报为准。</p>
           </div>
         </div>
       </details>
@@ -257,6 +283,19 @@
         <form class="journal-form" id="journalForm">
           <label class="field-label" for="journalTerm">记录节气</label>
           <select id="journalTerm" name="term"></select>
+
+          <fieldset class="journal-conditions">
+            <legend>观测条件</legend>
+            <label><span>天气</span><select id="journalWeather">
+              <option value="">未选择</option><option>晴</option><option>多云</option><option>阴</option><option>小雨</option><option>中到大雨</option><option>雪</option><option>雾霾</option><option>其他</option>
+            </select></label>
+            <label><span>风力</span><select id="journalWind">
+              <option value="">未选择</option><option>无风</option><option>微风</option><option>有风</option><option>大风</option>
+            </select></label>
+            <label><span>体感温度</span><select id="journalTemp">
+              <option value="">未选择</option><option>寒冷</option><option>偏冷</option><option>舒适</option><option>偏热</option><option>炎热</option>
+            </select></label>
+          </fieldset>
 
           <fieldset class="pentad-picker">
             <legend>今日观察到的物候</legend>
@@ -309,8 +348,8 @@
     <div class="noscript">本作品需要启用 JavaScript 才能使用节令盘、知识测验和观察手账。</div>
   </noscript>
 
-  <script src="js/data.js?v=20261019-5" defer></script>
-  <script src="js/app.js?v=20261019-5" defer></script>
+  <script src="js/data.js?v=20261019-6" defer></script>
+  <script src="js/app.js?v=20261019-6" defer></script>
 </body>
 </html>
 

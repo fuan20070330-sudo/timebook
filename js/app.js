@@ -30,6 +30,7 @@
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
   const termByName = new Map(TERMS.map(term => [term.name, term]));
   const termById = new Map(TERMS.map(term => [term.id, term]));
+  const SOURCES = DATA.sourceCatalog || {};
 
   function escapeHTML(value) {
     return String(value).replace(/[&<>"']/g, char => ({
@@ -248,6 +249,11 @@
     $('#scienceNextTerm').textContent = `${context.next.name} · ${formatDate(context.nextStart)}`;
     $('#scienceTitle').textContent = `此刻，太阳位于${context.current.name}`;
     $('#scienceCopy').textContent = `太阳视黄经约为 ${context.lambda.toFixed(1)}°，下一个节气是${context.next.name}，预计在 ${formatDateTime(context.nextStart)} 交节。`;
+    const rulerMarker = $('#solarRulerMarker');
+    const rulerValue = $('#solarRulerValue');
+    if (rulerMarker) rulerMarker.style.left = `${Math.min(100, Math.max(0, context.lambda / 360 * 100))}%`;
+    if (rulerValue) rulerValue.textContent = `${context.lambda.toFixed(1)}°`;
+    $('#solarRuler')?.setAttribute('aria-label', `太阳黄经刻度尺，当前位置 ${context.lambda.toFixed(1)} 度`);
 
     updateOrbitMarker();
     renderPentads();
@@ -258,6 +264,15 @@
       $('#orbitLongitude').textContent = `黄经 ${context.current.longitude}°`;
     }
   }
+  function sourceBadge(id) {
+    const source = SOURCES[id];
+    return `<span class="source-id" title="${escapeHTML(source?.detail || '')}">${id}</span>`;
+  }
+
+  function sourceJump() {
+    return '<button class="source-jump" type="button" data-open-sources>查看来源说明</button>';
+  }
+
   function renderTermDetail(term) {
     const season = SEASONS[term.season];
     const panel = $('#termDetail');
@@ -276,19 +291,20 @@
             <span class="term-tag">${escapeHTML(term.phrase)}</span>
             ${term.custom.map(item => `<span class="term-tag">${escapeHTML(item)}</span>`).join('')}
           </div>
+          <div class="term-source-line"><span>资料来源</span>${sourceBadge('S1')}${sourceBadge('S5')}${sourceJump()}</div>
         </div>
         <span class="term-season-badge" title="${escapeHTML(season.name)}">${escapeHTML(season.label)}</span>
       </div>
       <p class="term-summary">${escapeHTML(term.summary)}</p>
       <div class="term-metrics">
-        <div class="term-metric"><span>太阳视黄经</span><b>${term.longitude}°</b></div>
+        <div class="term-metric"><span>太阳视黄经 ${sourceBadge('S4')}</span><b>${term.longitude}°</b></div>
         <div class="term-metric"><span>太阳直射点</span><b>${formatDeclination(declination)}</b></div>
         <div class="term-metric"><span>大约交节</span><b>${escapeHTML(term.dateHint)}</b></div>
       </div>
       <div class="term-pentads">
         ${term.pentads.map((pentad, index) => `
           <div class="term-pentad">
-            <span>${['初候', '二候', '三候'][index]}</span>
+            <span>${['初候', '二候', '三候'][index]} ${sourceBadge('S2')}</span>
             <strong>${escapeHTML(pentad.name)}</strong>
             <p>${escapeHTML(pentad.note)}</p>
           </div>`).join('')}
@@ -296,10 +312,10 @@
       <div class="term-bottom">
         <div class="term-poem">
           <blockquote>“${escapeHTML(term.poem.text)}”</blockquote>
-          <cite>${escapeHTML(term.poem.author)} ${escapeHTML(term.poem.work)}</cite>
+          <cite>${escapeHTML(term.poem.author)} ${escapeHTML(term.poem.work)} ${sourceBadge('S3')}</cite>
         </div>
         <div class="term-science">
-          <span>科学解释</span>
+          <span>科学解释 ${sourceBadge('S5')}</span>
           <p>${escapeHTML(term.fact)}</p>
           <p><b>农事：</b>${escapeHTML(term.agriculture)}</p>
           <p><b>生活：</b>${escapeHTML(term.health)}</p>
@@ -333,7 +349,7 @@
             aria-label="查看${term.name}${['初候', '二候', '三候'][index]}${pentad.name}">
             <div class="pentad-card-top">
               <span class="pentad-season">${season.label}季</span>
-              <span>${escapeHTML(term.name)} · ${['初候', '二候', '三候'][index]}</span>
+              <span>${escapeHTML(term.name)} · ${['初候', '二候', '三候'][index]} ${sourceBadge('S2')}</span>
             </div>
             <strong>${escapeHTML(pentad.name)}</strong>
             <p>${escapeHTML(pentad.note)}</p>
@@ -512,6 +528,13 @@
         options: ['春分与秋分', '夏至与冬至', '立春与立秋', '小满与大暑'],
         correct: '春分与秋分',
         explain: '春分和秋分的太阳视黄经分别为0°和180°，太阳直射赤道附近。'
+      },
+      {
+        dimension: 'astronomy',
+        prompt: '夏至之后仍可能继续升温，主要原因是什么？',
+        options: ['地表热量累积存在滞后', '太阳停止辐射热量', '地球突然离太阳更近', '白昼开始迅速变长'],
+        correct: '地表热量累积存在滞后',
+        explain: '夏至后地表仍在持续吸收多于散失的热量，因此最热时段通常滞后出现。'
       }
     ];
 
@@ -536,6 +559,13 @@
         options: makeOptions('大暑', termNames),
         correct: '大暑',
         explain: '“腐草为萤”是大暑初候，反映古人对萤火虫出现时节的观察与想象。'
+      },
+      {
+        dimension: 'phenology',
+        prompt: '“鸿雁来宾、雀入大水为蛤、菊有黄华”最可能对应哪个节气？',
+        options: makeOptions('寒露', termNames),
+        correct: '寒露',
+        explain: '这三候依次是寒露的初候、二候和三候。'
       }
     ];
 
@@ -567,6 +597,13 @@
         options: makeOptions('谷雨', termNames),
         correct: '谷雨',
         explain: '谷雨是春季最后一个节气，降水增多，适宜谷物生长。'
+      },
+      {
+        dimension: 'culture',
+        prompt: '“露从今夜白”与哪个节气名称直接呼应？',
+        options: makeOptions('白露', termNames),
+        correct: '白露',
+        explain: '杜甫诗句“露从今夜白”与白露节气名称形成了直接呼应。'
       }
     ];
 
@@ -605,19 +642,42 @@
     }).join('');
   }
 
-  function recommendationFor(dimensions) {
+  function recommendationPlan(dimensions) {
     const entries = Object.entries(DIMENSIONS)
       .filter(([key]) => dimensions[key]?.total)
       .map(([key, label]) => ({ key, label, ratio: masteryRatio(dimensions[key]) }))
       .sort((a, b) => a.ratio - b.ratio);
-    if (!entries.length) return '完成一轮练习后，系统会根据答题情况给出复习建议。';
-    if (entries[0].ratio >= 0.8) return '三个维度掌握较稳，可以进入观察手账，把知识转化为真实记录。';
-    const advice = {
-      astronomy: '回到节令盘，比较春分、夏至、秋分、冬至的太阳黄经与直射点。',
-      phenology: '复习七十二候，重点观察同一节气三候之间的连续变化。',
-      culture: '阅读节气详情中的农事、习俗与诗句，把名称和传统生活联系起来。'
+    if (!entries.length) {
+      return {
+        text: '完成一轮练习后，系统会根据答题情况给出复习建议。',
+        dimension: null, target: 'quiz', termId: null, button: '继续练习'
+      };
+    }
+    if (entries[0].ratio >= 0.8) {
+      return {
+        text: '三个维度掌握较稳，可以进入观察手账，把知识转化为真实记录。',
+        dimension: 'review', target: 'journal', termId: state.currentTermId || 'lichun', button: '打开观察手账'
+      };
+    }
+    const plans = {
+      astronomy: {
+        text: '建议先复习天文维度：回到节令盘，比较春分、夏至、秋分、冬至的太阳黄经与直射点。',
+        target: 'wheel', termId: 'chunfen', button: '打开春分对照'
+      },
+      phenology: {
+        text: '建议先复习物候维度：阅读当前节气的三候，观察同一节气内物候怎样连续变化。',
+        target: 'pentads', termId: state.currentTermId || 'lichun', button: '复习当前节气三候'
+      },
+      culture: {
+        text: '建议先复习文化维度：阅读节气详情中的农事、习俗与诗句，把名称和传统生活联系起来。',
+        target: 'wheel', termId: 'qingming', button: '查看清明习俗'
+      }
     };
-    return `建议先复习${entries[0].label}维度：${advice[entries[0].key]}`;
+    return { ...plans[entries[0].key], dimension: entries[0].key };
+  }
+
+  function recommendationFor(dimensions) {
+    return recommendationPlan(dimensions).text;
   }
 
   function renderLearningProfile(profile = state.learningProfile) {
@@ -638,6 +698,15 @@
     if (bars) bars.innerHTML = masteryBarsHTML(profile.dimensions);
     const recommendation = $('#learningRecommendation');
     if (recommendation) recommendation.textContent = profile.recommendation || recommendationFor(profile.dimensions);
+    const plan = profile.review || recommendationPlan(profile.dimensions);
+    const reviewButton = $('#learningReviewBtn');
+    if (reviewButton) {
+      reviewButton.hidden = !plan.termId;
+      reviewButton.textContent = plan.button || '去复习';
+      reviewButton.dataset.termId = plan.termId || '';
+      reviewButton.dataset.reviewTarget = plan.target || 'wheel';
+      reviewButton.dataset.reviewDimension = plan.dimension || '';
+    }
   }
 
   function saveLearningProfile(quiz) {
@@ -646,7 +715,8 @@
       score: quiz.score,
       total: quiz.questions.length,
       dimensions: JSON.parse(JSON.stringify(quiz.dimensions)),
-      recommendation: recommendationFor(quiz.dimensions)
+      recommendation: recommendationFor(quiz.dimensions),
+      review: recommendationPlan(quiz.dimensions)
     };
     state.learningProfile = profile;
     renderLearningProfile(profile);
@@ -697,6 +767,7 @@
               ${masteryBarsHTML(quiz.dimensions)}
             </div>
             <p class="quiz-recommendation">${escapeHTML(recommendationFor(quiz.dimensions))}</p>
+            ${(() => { const plan = recommendationPlan(quiz.dimensions); return plan.termId ? `<button class="button button-small button-ghost learning-review-btn" type="button" data-term-id="${plan.termId}" data-review-target="${plan.target}" data-review-dimension="${plan.dimension || ''}">${escapeHTML(plan.button)}</button>` : ''; })()}
             <button class="button button-primary" type="button" id="quizRestartBtn">重新练习</button>
           </div>
         </div>`;
@@ -836,6 +907,14 @@
       </label>`).join('');
   }
 
+  function readJournalConditions() {
+    return {
+      weather: $('#journalWeather')?.value || '',
+      wind: $('#journalWind')?.value || '',
+      temp: $('#journalTemp')?.value || ''
+    };
+  }
+
   function renderJournalEntries() {
     const container = $('#journalEntries');
     if (!container) return;
@@ -851,6 +930,7 @@
           <div class="entry-term">${escapeHTML(term.name)}</div>
           <div class="entry-content">
             <span class="entry-time">${escapeHTML(formatDateTime(new Date(entry.createdAt)))}</span>
+            ${(() => { const c = entry.conditions || {}; const items = [c.weather, c.wind, c.temp].filter(Boolean); return items.length ? `<div class="entry-conditions">${items.map(item => `<span>${escapeHTML(item)}</span>`).join('')}</div>` : ''; })()}
             <p>${escapeHTML(entry.note || '（未填写现场记录）')}</p>
             ${entry.pentads?.length ? `<div class="entry-pentads">${entry.pentads.map(item => `<span>${escapeHTML(item)}</span>`).join('')}</div>` : ''}
           </div>
@@ -864,6 +944,7 @@
     const term = termById.get(termId);
     const note = $('#journalNote').value.trim();
     const pentads = $$('#journalPentads input:checked').map(input => input.value);
+    const conditions = readJournalConditions();
     if (!term) return;
     if (!note && !pentads.length) {
       showToast('请至少勾选一候，或写下一条现场记录');
@@ -875,6 +956,7 @@
       termId,
       note,
       pentads,
+      conditions,
       createdAt: new Date().toISOString()
     });
     persistJournal();
@@ -919,6 +1001,8 @@
     const season = SEASONS[term.season];
     const note = ($('#journalNote')?.value || '').trim();
     const checked = $$('#journalPentads input:checked').map(input => input.value);
+    const conditions = readJournalConditions();
+    const conditionText = [conditions.weather, conditions.wind, conditions.temp].filter(Boolean).join(' · ');
     const now = new Date();
 
     const gradient = ctx.createLinearGradient(0, 0, width, height);
@@ -1046,11 +1130,18 @@
     ctx.fillStyle = 'rgba(23,39,45,.52)';
     ctx.font = '600 16px "PingFang SC", "Microsoft YaHei", sans-serif';
     ctx.fillText('我的观察记录', 112, 1012);
+    if (conditionText) {
+      ctx.fillStyle = 'rgba(23,39,45,.52)';
+      ctx.font = '500 17px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText(`观测条件：${conditionText}`, 112, 1054);
+    }
     ctx.fillStyle = term.palette.deep;
     ctx.font = '400 29px "PingFang SC", "Microsoft YaHei", sans-serif';
     const displayNote = note || '今天，我看见了时间在天空、风和草木之间留下的痕迹。';
-    const lines = wrapCanvasText(ctx, displayNote, 950).slice(0, 5);
-    lines.forEach((line, index) => ctx.fillText(line, 112, 1067 + index * 43));
+    const noteStartY = conditionText ? 1098 : 1067;
+    const maxLines = conditionText ? 4 : 5;
+    const lines = wrapCanvasText(ctx, displayNote, 950).slice(0, maxLines);
+    lines.forEach((line, index) => ctx.fillText(line, 112, noteStartY + index * 43));
 
     ctx.fillStyle = 'rgba(23,39,45,.52)';
     ctx.font = '600 15px "PingFang SC", "Microsoft YaHei", sans-serif';
@@ -1121,6 +1212,34 @@
     previewFrame = window.requestAnimationFrame(renderCardPreview);
   }
 
+  function reviewFromRecommendation(button) {
+    const termId = button.dataset.termId;
+    const target = button.dataset.reviewTarget || 'wheel';
+    const term = termById.get(termId);
+    if (!term) return;
+    if (target === 'journal') {
+      selectTerm(termId);
+      $('#journal')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast('已定位到观察手账');
+      return;
+    }
+    if (target === 'pentads') {
+      selectTerm(termId);
+      const input = $('#pentadSearch');
+      if (input) input.value = term.name;
+      state.pentadQuery = term.name;
+      state.pentadVisibleCount = PENTAD_PAGE_SIZE;
+      applyPentadFilter(state.pentadFilter);
+      $('#pentads')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast(`已筛选${term.name}的三候`);
+      return;
+    }
+    selectTerm(termId, { scroll: true });
+    showToast(button.dataset.reviewDimension === 'astronomy'
+      ? '从春分开始，继续对照夏至、秋分和冬至'
+      : `已定位到${term.name}`);
+  }
+
   function bindEvents() {
     $('#jumpTodayBtn')?.addEventListener('click', () => {
       selectTerm(state.currentTermId, { scroll: true });
@@ -1155,6 +1274,9 @@
       renderCardPreview();
     });
     $('#journalPentads')?.addEventListener('change', renderCardPreview);
+    ['#journalWeather', '#journalWind', '#journalTemp'].forEach(selector => {
+      $(selector)?.addEventListener('change', renderCardPreview);
+    });
     $('#journalNote')?.addEventListener('input', () => {
       refreshNoteCount();
       schedulePreview();
@@ -1172,7 +1294,24 @@
     });
     $('#quizBody')?.addEventListener('click', event => {
       const button = event.target.closest('.quiz-option');
-      if (button) answerQuiz(button.dataset.option);
+      if (button) {
+        answerQuiz(button.dataset.option);
+        return;
+      }
+      const review = event.target.closest('.learning-review-btn');
+      if (review) reviewFromRecommendation(review);
+    });
+    $('#learningProfile')?.addEventListener('click', event => {
+      const review = event.target.closest('.learning-review-btn');
+      if (review) reviewFromRecommendation(review);
+    });
+    $('#termDetail')?.addEventListener('click', event => {
+      if (!event.target.closest('[data-open-sources]')) return;
+      const panel = $('#sourcePanel');
+      if (panel) {
+        panel.open = true;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     });
     $('#quizNextBtn')?.addEventListener('click', nextQuiz);
     $('#mythGrid')?.addEventListener('click', event => {
