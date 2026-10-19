@@ -8,6 +8,7 @@
   const RAD = Math.PI / 180;
   const STORAGE_KEY = 'timebook.journal.v1';
   const quizLength = 8;
+  const PENTAD_PAGE_SIZE = 4;
 
   const state = {
     currentTermId: null,
@@ -15,6 +16,8 @@
     currentTermStart: null,
     nextTermStart: null,
     pentadFilter: 'all',
+    pentadQuery: '',
+    pentadVisibleCount: PENTAD_PAGE_SIZE,
     journal: loadJournal(),
     quiz: null
   };
@@ -322,7 +325,7 @@
         const isCurrent = state.currentTermId === term.id && currentPentadIndex === index;
         cards.push(`
           <button class="pentad-card${isCurrent ? ' is-current' : ''}" type="button" data-term-id="${term.id}"
-            data-season="${term.season}" style="--card-accent:${season.color}"
+            data-term-name="${escapeHTML(term.name)}" data-season="${term.season}" style="--card-accent:${season.color}"
             aria-label="查看${term.name}${['初候', '二候', '三候'][index]}${pentad.name}">
             <div class="pentad-card-top">
               <span class="pentad-season">${season.label}季</span>
@@ -337,14 +340,76 @@
     applyPentadFilter(state.pentadFilter);
   }
 
-  function applyPentadFilter(filter) {
+  function applyPentadFilter(filter = state.pentadFilter, reset = false) {
     state.pentadFilter = filter;
+    if (reset) state.pentadVisibleCount = PENTAD_PAGE_SIZE;
+
     $$('.season-button').forEach(button => {
       button.classList.toggle('is-active', button.dataset.season === filter);
     });
-    $$('.pentad-card').forEach(card => {
-      card.hidden = filter !== 'all' && card.dataset.season !== filter;
+
+    const query = state.pentadQuery.trim();
+    const showingAllMatches = query.length > 0;
+    const cards = $$('.pentad-card');
+    const matched = cards.filter(card => {
+      const seasonMatches = filter === 'all' || card.dataset.season === filter;
+      const nameMatches = !showingAllMatches || (card.dataset.termName || '').includes(query);
+      return seasonMatches && nameMatches;
     });
+    const shownCount = showingAllMatches
+      ? matched.length
+      : Math.min(state.pentadVisibleCount, matched.length);
+    const visibleCards = new Set(matched.slice(0, shownCount));
+
+    cards.forEach(card => {
+      card.hidden = !visibleCards.has(card);
+    });
+
+    const termCount = new Set(matched.map(card => card.dataset.termId)).size;
+    const status = $('#pentadStatus');
+    if (status) {
+      status.textContent = showingAllMatches
+        ? `“${query}”找到 ${termCount} 个节气 · ${matched.length} 条物候`
+        : `已显示 ${shownCount} / ${matched.length} 条物候`;
+    }
+
+    const clearButton = $('#clearPentadSearch');
+    if (clearButton) clearButton.hidden = !showingAllMatches;
+
+    const loadZone = $('#pentadLoadZone');
+    const remaining = matched.length - shownCount;
+    if (loadZone) {
+      loadZone.hidden = showingAllMatches || remaining <= 0;
+      const loadTitle = $('#pentadLoadTitle');
+      const loadText = $('#pentadLoadText');
+      if (loadTitle) loadTitle.textContent = '继续下滑';
+      if (loadText) loadText.textContent = remaining > 0
+        ? `还有 ${remaining} 条，下滑或点击继续显示`
+        : '全部物候已显示';
+    }
+
+    const empty = $('#pentadEmpty');
+    if (empty) {
+      empty.hidden = matched.length > 0;
+      empty.textContent = showingAllMatches
+        ? `没有找到节气“${query}”。搜索框只匹配节气名称，如“立春”“夏至”。`
+        : '这个分类下暂时没有物候。';
+    }
+  }
+
+  function loadMorePentads() {
+    if (state.pentadQuery.trim()) return;
+    state.pentadVisibleCount += PENTAD_PAGE_SIZE;
+    applyPentadFilter(state.pentadFilter);
+  }
+
+  function setupPentadObserver() {
+    const zone = $('#pentadLoadZone');
+    if (!zone || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) loadMorePentads();
+    }, { rootMargin: '0px 0px 160px 0px', threshold: 0.01 });
+    observer.observe(zone);
   }
 
   function shuffle(items) {
@@ -839,8 +904,24 @@
     });
     $('#seasonFilter')?.addEventListener('click', event => {
       const button = event.target.closest('.season-button');
-      if (button) applyPentadFilter(button.dataset.season);
+      if (button) applyPentadFilter(button.dataset.season, true);
     });
+    $('#pentadSearch')?.addEventListener('input', event => {
+      state.pentadQuery = event.target.value;
+      state.pentadVisibleCount = PENTAD_PAGE_SIZE;
+      applyPentadFilter(state.pentadFilter);
+    });
+    $('#clearPentadSearch')?.addEventListener('click', () => {
+      const input = $('#pentadSearch');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      state.pentadQuery = '';
+      state.pentadVisibleCount = PENTAD_PAGE_SIZE;
+      applyPentadFilter(state.pentadFilter);
+    });
+    $('#pentadLoadZone')?.addEventListener('click', loadMorePentads);
     $('#pentadGrid')?.addEventListener('click', event => {
       const card = event.target.closest('.pentad-card');
       if (card) selectTerm(card.dataset.termId, { scroll: true });
@@ -888,6 +969,7 @@
     buildJournalSelect();
     bindEvents();
     refreshLive();
+    setupPentadObserver();
     if (!state.selectedTermId) selectTerm(state.currentTermId);
     startQuiz();
     renderJournalEntries();

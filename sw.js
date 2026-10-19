@@ -1,4 +1,4 @@
-const CACHE = 'timebook-v1';
+const CACHE = 'timebook-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -30,3 +30,4 @@ self.addEventListener('fetch', event => {
     return response;
   })));
 });
+

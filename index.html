@@ -118,9 +118,18 @@
         <p class="section-number">02 / 七十二候</p>
         <div>
           <h2 id="pentads-title">五日为候，三候成节气</h2>
-          <p>古人把每个节气分为三候，以物候变化记录季节推进。点击任意一候，回到它所属的节气。</p>
+          <p>古人把每个节气分为三候，以物候变化记录季节推进。首屏显示 4 条，向下滚动继续加载；可按四季筛选，也可直接搜索节气名称。</p>
         </div>
       </header>
+
+      <div class="pentad-tools">
+        <label class="pentad-search" for="pentadSearch">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
+          <input id="pentadSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜索节气名称，如：立春、夏至" aria-describedby="pentadSearchHint">
+          <button class="pentad-search-clear" id="clearPentadSearch" type="button" aria-label="清除节气搜索" hidden>×</button>
+        </label>
+        <p id="pentadSearchHint">只匹配节气名称，不搜索物候内容</p>
+      </div>
 
       <div class="season-filter" id="seasonFilter" role="group" aria-label="按季节筛选七十二候">
         <button class="season-button is-active" type="button" data-season="all">全部</button>
@@ -129,7 +138,17 @@
         <button class="season-button" type="button" data-season="autumn">秋</button>
         <button class="season-button" type="button" data-season="winter">冬</button>
       </div>
+
+      <div class="pentad-meta">
+        <span id="pentadStatus">显示 4 / 72 条物候</span>
+        <span>首屏 4 条 · 向下滚动继续加载</span>
+      </div>
       <div class="pentad-grid" id="pentadGrid"></div>
+      <p class="pentad-empty" id="pentadEmpty" hidden></p>
+      <button class="pentad-load-zone" id="pentadLoadZone" type="button">
+        <span class="pentad-load-mark" aria-hidden="true">↓</span>
+        <span><strong id="pentadLoadTitle">继续下滑</strong><small id="pentadLoadText">显示更多物候，也可以点击加载</small></span>
+      </button>
     </section>
 
     <section class="section learning-section" id="learning" aria-labelledby="learning-title">
@@ -248,3 +267,5 @@
   <script src="js/app.js" defer></script>
 </body>
 </html>
+
+
