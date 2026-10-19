@@ -764,7 +764,7 @@
           <span class="myth-toggle">展开解释 +</span>
         </span>
         <span class="myth-question">${escapeHTML(item.myth)}</span>
-        <span class="myth-answer" id="myth-answer-${item.id}">
+        <span class="myth-answer" id="myth-answer-${item.id}" aria-hidden="true">
           <span class="myth-answer-inner">
             <strong>${escapeHTML(item.truth)}</strong>
             <span>${escapeHTML(item.explain)}</span>
@@ -780,12 +780,16 @@
       other.setAttribute('aria-expanded', 'false');
       const toggle = $('.myth-toggle', other);
       if (toggle) toggle.textContent = '展开解释 +';
+      const answer = $('.myth-answer', other);
+      if (answer) answer.setAttribute('aria-hidden', 'true');
     });
     if (shouldOpen) {
       card.classList.add('is-open');
       card.setAttribute('aria-expanded', 'true');
       const toggle = $('.myth-toggle', card);
       if (toggle) toggle.textContent = '收起解释 −';
+      const answer = $('.myth-answer', card);
+      if (answer) answer.setAttribute('aria-hidden', 'false');
     }
   }
 
