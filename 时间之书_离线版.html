@@ -1,0 +1,1952 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="《时间之书》是一款面向公众的二十四节气天文与物候科普 Web 应用，用交互节气盘、七十二候、知识测验与观察手账建立完整学习闭环。">
+  <meta name="theme-color" content="#15272f">
+  <title>时间之书 · 二十四节气天文与物候科普</title>
+  <style>
+:root {
+  --paper: #f3eee4;
+  --paper-light: #fbf8f1;
+  --paper-deep: #e7dfd1;
+  --ink: #17272d;
+  --ink-soft: #3d4e53;
+  --muted: #7a8585;
+  --line: rgba(23, 39, 45, .13);
+  --line-strong: rgba(23, 39, 45, .25);
+  --accent: #6f8f59;
+  --accent-deep: #34533e;
+  --season-soft: #dfe9d8;
+  --season-ink: #1d3529;
+  --gold: #b08a49;
+  --cinnabar: #b84f39;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+  --shadow-soft: 0 24px 80px rgba(27, 39, 39, .12);
+  --shadow-card: 0 12px 36px rgba(27, 39, 39, .08);
+  --radius-xl: 36px;
+  --radius-lg: 26px;
+  --radius-md: 18px;
+  --page-pad: clamp(20px, 5vw, 76px);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 90% 4%, color-mix(in srgb, var(--season-soft) 70%, white) 0, transparent 31rem),
+    radial-gradient(circle at 0% 37%, rgba(176, 138, 73, .09), transparent 28rem),
+    linear-gradient(180deg, var(--paper-light), var(--paper) 42%, #ece5d8);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background .6s ease;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--season-soft) 22%, transparent), transparent 46%);
+  transition: background .6s ease;
+}
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; }
+img, svg { display: block; max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 32%, transparent); }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 70%, white); outline-offset: 3px; }
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  left: 12px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper-light);
+  transform: translateY(-150%);
+  transition: transform .2s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+.page-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  opacity: .12;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.11'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 13px var(--page-pad);
+  border-bottom: 1px solid rgba(23, 39, 45, .07);
+  background: color-mix(in srgb, var(--paper-light) 76%, transparent);
+  backdrop-filter: saturate(170%) blur(24px);
+  -webkit-backdrop-filter: saturate(170%) blur(24px);
+}
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--paper-light); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.brand-mark svg { width: 29px; height: 29px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+.brand-mark circle:last-child { fill: currentColor; stroke: none; }
+.brand-copy { display: grid; gap: 1px; }
+.brand-copy strong { font-family: var(--serif); font-size: 18px; letter-spacing: .08em; }
+.brand-copy small { color: var(--muted); font-size: 8px; letter-spacing: .24em; }
+.site-nav { display: flex; align-items: center; gap: clamp(16px, 2.3vw, 34px); }
+.site-nav a { color: var(--ink-soft); font-size: 13px; text-decoration: none; transition: color .2s ease; }
+.site-nav a:hover { color: var(--ink); }
+.site-nav .nav-pill { padding: 9px 17px; border-radius: 999px; background: var(--ink); color: var(--paper-light); }
+.site-nav .nav-pill:hover { background: var(--accent-deep); color: white; }
+main { overflow: hidden; }
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(420px, .95fr);
+  align-items: center;
+  gap: clamp(30px, 6vw, 96px);
+  min-height: calc(100vh - 67px);
+  padding: clamp(58px, 8vw, 116px) var(--page-pad) clamp(76px, 9vw, 124px);
+}
+.hero::after {
+  content: "TIME";
+  position: absolute;
+  right: -2vw;
+  bottom: 5vh;
+  color: rgba(23, 39, 45, .025);
+  font-family: var(--serif);
+  font-size: clamp(150px, 27vw, 420px);
+  font-weight: 700;
+  letter-spacing: -.09em;
+  line-height: .8;
+  pointer-events: none;
+}
+.eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 24px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; }
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 48%, transparent); animation: pulse 2.4s infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 9px transparent; } }
+.hero h1 { max-width: 720px; margin: 0; font-family: var(--serif); font-size: clamp(58px, 8vw, 116px); font-weight: 600; letter-spacing: -.065em; line-height: .98; }
+.hero h1 em { color: var(--accent-deep); font-style: normal; }
+.hero-lead { max-width: 580px; margin: 28px 0 0; color: var(--ink-soft); font-size: clamp(16px, 1.5vw, 20px); line-height: 1.78; }
+.live-term { max-width: 610px; margin-top: 34px; padding: 20px 22px 18px; border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--paper-light) 66%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.62); backdrop-filter: blur(16px); }
+.live-term-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.live-kicker { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+.live-season { padding: 4px 10px; border-radius: 999px; background: var(--season-soft); color: var(--season-ink); font-size: 11px; font-weight: 700; }
+.live-term-main { display: flex; align-items: baseline; gap: 12px; margin-top: 5px; }
+.live-term-main strong { font-family: var(--serif); font-size: clamp(34px, 4vw, 50px); line-height: 1.15; }
+.live-term-main span { color: var(--muted); font-size: 12px; letter-spacing: .1em; }
+.live-term p { margin: 2px 0 16px; color: var(--ink-soft); font-size: 14px; }
+.live-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.live-metrics div { padding-top: 11px; border-top: 1px solid var(--line); }
+.live-metrics span { display: block; color: var(--muted); font-size: 10px; letter-spacing: .08em; }
+.live-metrics b { display: block; margin-top: 2px; font-size: 15px; font-weight: 650; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 22px; border: 1px solid transparent; border-radius: 999px; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 650; transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease; }
+.button:hover { transform: translateY(-2px); }
+.button-primary { background: var(--ink); color: var(--paper-light); }
+.button-primary:hover { background: var(--accent-deep); color: white; }
+.button-ghost { border-color: var(--line-strong); background: transparent; color: var(--ink); }
+.button-ghost:hover { border-color: var(--ink); background: rgba(255,255,255,.35); }
+.button-small { min-height: 38px; padding: 8px 16px; font-size: 12px; }
+.hero-visual { position: relative; display: grid; justify-items: center; align-self: center; min-height: 560px; }
+.orbit-halo { position: absolute; border-radius: 50%; filter: blur(1px); }
+.orbit-halo-a { width: 72%; aspect-ratio: 1; background: radial-gradient(circle, color-mix(in srgb, var(--season-soft) 78%, transparent), transparent 68%); }
+.orbit-halo-b { width: 104%; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent); }
+.hero-orbit {
+  position: relative;
+  width: min(100%, 520px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.6) 0 29%, transparent 30%), repeating-conic-gradient(from -7.5deg, color-mix(in srgb, var(--accent) 18%, transparent) 0 1deg, transparent 1deg 15deg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), 0 40px 100px rgba(28, 44, 44, .14);
+  animation: float 9s ease-in-out infinite;
+}
+.hero-orbit::before, .hero-orbit::after { content: ""; position: absolute; border-radius: 50%; }
+.hero-orbit::before { inset: 7%; border: 1px dashed color-mix(in srgb, var(--accent) 38%, transparent); }
+.hero-orbit::after { inset: 20%; border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); }
+@keyframes float { 50% { transform: translateY(-10px); } }
+.orbit-center { position: absolute; inset: 30%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, var(--paper-light) 82%, transparent); box-shadow: 0 18px 50px rgba(31, 45, 45, .1), inset 0 0 0 1px rgba(255,255,255,.8); text-align: center; backdrop-filter: blur(18px); }
+.orbit-season { color: var(--accent-deep); font-family: var(--serif); font-size: 14px; letter-spacing: .24em; }
+.orbit-center strong { margin: 4px 0 2px; font-family: var(--serif); font-size: clamp(44px, 6vw, 74px); font-weight: 600; line-height: 1.05; }
+.orbit-center small { color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+.orbit-node { position: absolute; left: 50%; top: 50%; width: 42px; height: 42px; margin: -21px 0 0 -21px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); border-radius: 50%; background: color-mix(in srgb, var(--paper-light) 74%, transparent); color: var(--ink-soft); font-family: var(--serif); font-size: 11px; transform: translate(var(--x), var(--y)); transition: background .35s ease, color .35s ease, border-color .35s ease, box-shadow .35s ease; }
+.orbit-node.is-current { background: var(--accent-deep); border-color: var(--accent-deep); color: white; box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 14%, transparent); }
+.orbit-caption { position: absolute; right: 0; bottom: 12px; display: grid; gap: 3px; padding: 10px 12px; border-left: 1px solid var(--line-strong); color: var(--muted); font-size: 9px; letter-spacing: .08em; }
+.orbit-caption strong { color: var(--ink); font-size: 11px; font-weight: 650; }
+.section { padding: clamp(82px, 10vw, 150px) var(--page-pad); }
+.section-heading { display: grid; grid-template-columns: minmax(130px, .26fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 86px); align-items: start; max-width: 1320px; margin: 0 auto clamp(38px, 5vw, 66px); }
+.section-number { margin: 9px 0 0; color: var(--accent-deep); font-size: 11px; font-weight: 750; letter-spacing: .18em; }
+.section-heading h2 { max-width: 820px; margin: 0; font-family: var(--serif); font-size: clamp(34px, 5vw, 66px); font-weight: 600; letter-spacing: -.045em; line-height: 1.12; }
+.section-heading p:not(.section-number) { max-width: 760px; margin: 16px 0 0; color: var(--ink-soft); font-size: clamp(14px, 1.25vw, 17px); line-height: 1.8; }
+.wheel-section { border-top: 1px solid var(--line); }
+.wheel-layout { display: grid; grid-template-columns: minmax(440px, .92fr) minmax(0, 1.08fr); align-items: center; gap: clamp(36px, 7vw, 100px); max-width: 1320px; margin: 0 auto; }
+.solar-wheel-wrap { min-width: 0; }
+.solar-wheel { position: relative; width: min(100%, 640px); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--season-soft) 46%, transparent) 0 31%, transparent 31.5%), radial-gradient(circle, transparent 0 64%, color-mix(in srgb, var(--accent) 7%, transparent) 64.5% 100%); }
+.wheel-ring { position: absolute; border-radius: 50%; pointer-events: none; }
+.wheel-ring-outer { inset: 4%; border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent); }
+.wheel-ring-inner { inset: 25%; border: 1px dashed color-mix(in srgb, var(--accent) 24%, transparent); }
+.wheel-seasons { position: absolute; inset: 0; pointer-events: none; }
+.wheel-season { position: absolute; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: color-mix(in srgb, var(--paper-light) 72%, transparent); color: var(--accent-deep); font-family: var(--serif); font-size: 14px; }
+.wheel-season.spring { left: calc(50% - 21px); top: 12.5%; }
+.wheel-season.summer { right: 12.5%; top: calc(50% - 21px); }
+.wheel-season.autumn { left: calc(50% - 21px); bottom: 12.5%; }
+.wheel-season.winter { left: 12.5%; top: calc(50% - 21px); }
+.wheel-center { position: absolute; inset: 34%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.8); border-radius: 50%; background: color-mix(in srgb, var(--paper-light) 82%, transparent); box-shadow: var(--shadow-card), inset 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent); text-align: center; backdrop-filter: blur(18px); }
+.wheel-center-season { color: var(--accent-deep); font-family: var(--serif); font-size: 13px; letter-spacing: .22em; }
+.wheel-center strong { margin: 4px 0 0; font-family: var(--serif); font-size: clamp(34px, 4.2vw, 56px); font-weight: 600; line-height: 1.05; }
+.wheel-center small { margin-top: 3px; color: var(--muted); font-size: 9px; letter-spacing: .1em; }
+.wheel-terms { position: absolute; inset: 0; }
+.wheel-term { position: absolute; left: 50%; top: 50%; width: clamp(38px, 5vw, 52px); height: clamp(38px, 5vw, 52px); margin: calc(clamp(38px, 5vw, 52px) / -2) 0 0 calc(clamp(38px, 5vw, 52px) / -2); display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); border-radius: 50%; background: color-mix(in srgb, var(--paper-light) 88%, transparent); color: var(--ink-soft); cursor: pointer; font-family: var(--serif); font-size: clamp(10px, 1vw, 13px); transform: translate(var(--x), var(--y)); transition: transform .25s ease, background .25s ease, color .25s ease, box-shadow .25s ease; }
+.wheel-term:hover { z-index: 2; background: var(--season-soft); color: var(--season-ink); transform: translate(var(--x), var(--y)) scale(1.12); }
+.wheel-term.is-active { z-index: 3; border-color: var(--accent-deep); background: var(--accent-deep); color: white; box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 14%, transparent); }
+.wheel-term.is-current::after { content: ""; position: absolute; right: 2px; bottom: 2px; width: 7px; height: 7px; border: 2px solid var(--paper-light); border-radius: 50%; background: var(--gold); }
+.wheel-pointer { position: absolute; left: calc(50% - 5px); top: 1.5%; width: 10px; height: 18px; clip-path: polygon(50% 100%, 0 0, 100% 0); background: var(--cinnabar); }
+.wheel-note { max-width: 500px; margin: 16px auto 0; color: var(--muted); font-size: 11px; line-height: 1.7; text-align: center; }
+.term-panel { position: relative; overflow: hidden; min-height: 560px; padding: clamp(28px, 4vw, 48px); border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); border-radius: var(--radius-xl); background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--season-soft) 72%, transparent), transparent 40%), color-mix(in srgb, var(--paper-light) 72%, transparent); box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,.78); backdrop-filter: blur(18px); }
+.term-watermark { position: absolute; top: 12px; right: 22px; color: color-mix(in srgb, var(--accent) 10%, transparent); font-family: var(--serif); font-size: clamp(140px, 19vw, 250px); line-height: 1; pointer-events: none; }
+.term-head { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.term-label { color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .16em; }
+.term-title-row { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; }
+.term-title-row h3 { margin: 0; font-family: var(--serif); font-size: clamp(48px, 6.4vw, 82px); font-weight: 600; letter-spacing: -.06em; line-height: 1.05; }
+.term-title-row span { color: var(--muted); font-size: 11px; letter-spacing: .1em; }
+.term-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.term-tag { padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font-size: 10px; }
+.term-season-badge { flex: 0 0 auto; display: grid; place-items: center; width: 54px; height: 54px; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,255,255,.32); font-family: var(--serif); font-size: 20px; }
+.term-summary { position: relative; max-width: 760px; margin: 30px 0 0; color: var(--ink-soft); font-size: clamp(15px, 1.35vw, 18px); line-height: 1.9; }
+.term-metrics { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 26px; }
+.term-metric { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255,255,255,.24); }
+.term-metric span { color: var(--muted); font-size: 9px; letter-spacing: .08em; }
+.term-metric b { display: block; margin-top: 4px; font-size: 14px; font-weight: 650; }
+.term-pentads { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+.term-pentad { padding: 15px; border-top: 1px solid var(--line-strong); }
+.term-pentad span { color: var(--accent-deep); font-size: 9px; font-weight: 750; letter-spacing: .12em; }
+.term-pentad strong { display: block; margin-top: 4px; font-family: var(--serif); font-size: 18px; font-weight: 600; }
+.term-pentad p { margin: 7px 0 0; color: var(--ink-soft); font-size: 11px; line-height: 1.65; }
+.term-bottom { position: relative; display: grid; grid-template-columns: 1fr 1.05fr; gap: 28px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+.term-poem blockquote { margin: 0; font-family: var(--serif); font-size: 20px; line-height: 1.6; }
+.term-poem cite { display: block; margin-top: 7px; color: var(--muted); font-family: var(--sans); font-size: 10px; font-style: normal; }
+.term-science p, .term-life p { margin: 4px 0 0; color: var(--ink-soft); font-size: 12px; line-height: 1.75; }
+.term-science span, .term-life span { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .12em; }
+.pentad-section { border-top: 1px solid var(--line); }
+.season-filter { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 1320px; margin: -12px auto 28px; }
+.season-button { padding: 8px 18px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-soft); cursor: pointer; font-size: 12px; transition: all .2s ease; }
+.season-button:hover { border-color: var(--ink); }
+.season-button.is-active { border-color: var(--ink); background: var(--ink); color: var(--paper-light); }
+.pentad-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 1320px; margin: 0 auto; }
+.pentad-card { position: relative; min-height: 154px; padding: 17px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-md); background: color-mix(in srgb, var(--paper-light) 64%, transparent); text-align: left; cursor: pointer; transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease; }
+.pentad-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: var(--shadow-card); }
+.pentad-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--card-accent, var(--accent)); opacity: .72; }
+.pentad-card-top { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 9px; letter-spacing: .08em; }
+.pentad-card strong { display: block; margin-top: 13px; font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.pentad-card p { margin: 8px 0 0; color: var(--ink-soft); font-size: 11px; line-height: 1.65; }
+.pentad-card.is-current { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent); }
+.pentad-season { display: inline-flex; align-items: center; gap: 4px; }
+.pentad-season::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--card-accent, var(--accent)); }
+.learning-section { border-top: 1px solid var(--line); }
+.learning-grid { display: grid; grid-template-columns: .92fr 1.08fr; gap: 18px; max-width: 1320px; margin: 0 auto; }
+.science-card, .quiz-card { position: relative; min-height: 490px; padding: clamp(26px, 4vw, 44px); overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-xl); background: color-mix(in srgb, var(--paper-light) 72%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.65); }
+.science-card { background: linear-gradient(145deg, color-mix(in srgb, var(--season-soft) 44%, var(--paper-light)), color-mix(in srgb, var(--paper-light) 76%, transparent)); }
+.card-label { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+.science-card h3, .quiz-card h3 { margin: 7px 0 0; font-family: var(--serif); font-size: clamp(26px, 3vw, 38px); font-weight: 600; letter-spacing: -.035em; }
+.science-orbit { position: absolute; top: 92px; right: -42px; width: 250px; aspect-ratio: 1; border: 1px dashed color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 50%; opacity: .8; }
+.science-sun { position: absolute; left: 10px; top: 50%; width: 52px; height: 52px; margin-top: -26px; border-radius: 50%; background: radial-gradient(circle at 36% 34%, #fff0b8, #d6a442 65%, #a97528); box-shadow: 0 0 42px rgba(214, 164, 66, .4); }
+.science-earth { position: absolute; right: 14px; top: 50%; width: 42px; height: 42px; margin-top: -21px; display: grid; place-items: center; border: 1px solid var(--accent-deep); border-radius: 50%; background: var(--accent-deep); color: white; }
+.science-earth span { font-size: 8px; letter-spacing: .1em; }
+.science-axis { position: absolute; right: 16px; top: 50%; width: 38px; height: 1px; background: var(--gold); transform: rotate(-23deg); transform-origin: center; }
+.science-card > p { position: relative; max-width: 430px; margin: 20px 0 0; color: var(--ink-soft); font-size: 13px; line-height: 1.8; }
+.science-stats { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 32px 0 0; }
+.science-stats div { padding-top: 13px; border-top: 1px solid var(--line-strong); }
+.science-stats dt { color: var(--muted); font-size: 9px; letter-spacing: .08em; }
+.science-stats dd { margin: 4px 0 0; font-size: 14px; font-weight: 650; }
+.observation-prompt { position: relative; margin-top: 34px; padding: 18px; border-radius: var(--radius-md); background: rgba(255,255,255,.36); }
+.observation-prompt span { color: var(--accent-deep); font-size: 9px; font-weight: 750; letter-spacing: .14em; }
+.observation-prompt p { margin: 6px 0 0; color: var(--ink-soft); font-size: 12px; line-height: 1.7; }
+.quiz-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.quiz-progress { flex: 0 0 auto; color: var(--muted); font-size: 11px; letter-spacing: .08em; }
+.quiz-body { margin-top: 34px; }
+.quiz-question { margin: 0; font-family: var(--serif); font-size: clamp(19px, 2.1vw, 27px); line-height: 1.55; }
+.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 22px; }
+.quiz-option { padding: 13px 14px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255,255,255,.24); color: var(--ink-soft); text-align: left; cursor: pointer; font-size: 12px; transition: all .18s ease; }
+.quiz-option:hover:not(:disabled) { border-color: var(--accent); background: color-mix(in srgb, var(--season-soft) 42%, transparent); }
+.quiz-option.is-correct { border-color: #3e8057; background: #dcebdd; color: #1b4a2b; }
+.quiz-option.is-wrong { border-color: #b9644d; background: #f2ddd7; color: #662c1f; }
+.quiz-option:disabled { cursor: default; }
+.quiz-explain { min-height: 46px; margin: 18px 0 0; color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
+.quiz-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+#quizFeedback { color: var(--accent-deep); font-size: 11px; font-weight: 650; }
+.quiz-result { display: grid; place-items: center; min-height: 280px; text-align: center; }
+.quiz-score { font-family: var(--serif); font-size: 72px; line-height: 1; }
+.quiz-result p { max-width: 440px; margin: 14px auto 0; color: var(--ink-soft); font-size: 13px; }
+.quiz-result .button { margin-top: 22px; }
+.journal-section { border-top: 1px solid var(--line); }
+.journal-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(26px, 5vw, 64px); max-width: 1320px; margin: 0 auto; }
+.journal-form { padding: clamp(24px, 4vw, 38px); border: 1px solid var(--line); border-radius: var(--radius-xl); background: color-mix(in srgb, var(--paper-light) 62%, transparent); }
+.field-label { display: block; margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .12em; }
+select, textarea { width: 100%; border: 1px solid var(--line-strong); border-radius: 13px; background: rgba(255,255,255,.38); color: var(--ink); }
+select { padding: 12px 14px; }
+textarea { resize: vertical; min-height: 140px; padding: 14px; line-height: 1.7; }
+select:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
+.pentad-picker { margin: 24px 0 0; padding: 0; border: 0; }
+.pentad-picker legend { margin-bottom: 9px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .12em; }
+#journalPentads { display: grid; gap: 8px; }
+.pentad-check { display: flex; align-items: center; gap: 10px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
+.pentad-check input { accent-color: var(--accent-deep); }
+.pentad-check span { font-size: 12px; }
+.pentad-check small { margin-left: auto; color: var(--muted); font-size: 9px; }
+.journal-form > .field-label:nth-of-type(2) { margin-top: 24px; }
+.field-meta { display: flex; justify-content: space-between; margin-top: 6px; color: var(--muted); font-size: 9px; }
+.journal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.form-note { margin: 13px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.journal-side { display: grid; gap: 24px; }
+.journal-preview { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: color-mix(in srgb, var(--paper-light) 68%, transparent); }
+.journal-preview-head { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 12px; color: var(--muted); font-size: 10px; }
+.journal-preview canvas { width: 100%; height: auto; border-radius: 16px; background: #ece4d6; box-shadow: 0 15px 40px rgba(31, 45, 45, .12); }
+.journal-history { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: rgba(255,255,255,.22); }
+.history-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.history-head h3 { margin: 0; font-family: var(--serif); font-size: 21px; font-weight: 600; }
+.text-button { padding: 4px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 10px; }
+.text-button:hover { color: var(--cinnabar); }
+.journal-entry { display: grid; grid-template-columns: 54px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.journal-entry:last-child { border-bottom: 0; }
+.entry-term { font-family: var(--serif); font-size: 20px; }
+.entry-content p { margin: 3px 0 0; color: var(--ink-soft); font-size: 11px; line-height: 1.65; }
+.entry-time { color: var(--muted); font-size: 9px; }
+.entry-pentads { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.entry-pentads span { padding: 2px 6px; border-radius: 999px; background: var(--season-soft); color: var(--season-ink); font-size: 8px; }
+.empty-state { margin: 14px 0 0; color: var(--muted); font-size: 11px; }
+.site-footer { display: grid; grid-template-columns: .8fr 1.3fr auto; align-items: end; gap: 32px; padding: 48px var(--page-pad); border-top: 1px solid var(--line); background: rgba(23, 39, 45, .035); }
+.footer-brand strong { font-family: var(--serif); font-size: 24px; letter-spacing: .08em; }
+.footer-brand p, .footer-meta p { margin: 7px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+.footer-meta { max-width: 620px; }
+.site-footer > a { color: var(--ink-soft); font-size: 11px; text-decoration: none; }
+.toast { position: fixed; z-index: 200; left: 50%; bottom: 26px; padding: 10px 18px; border-radius: 999px; background: var(--ink); color: white; font-size: 12px; opacity: 0; pointer-events: none; transform: translate(-50%, 15px); transition: opacity .22s ease, transform .22s ease; }
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.noscript { position: fixed; inset: auto 20px 20px; z-index: 300; padding: 16px; border-radius: 14px; background: var(--cinnabar); color: white; text-align: center; }
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: 1fr; min-height: auto; }
+  .hero-copy { max-width: 780px; }
+  .hero-visual { width: min(100%, 620px); margin: 0 auto; min-height: 580px; }
+  .wheel-layout, .learning-grid, .journal-grid { grid-template-columns: 1fr; }
+  .term-panel { min-height: 0; }
+  .pentad-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .site-footer { grid-template-columns: 1fr 1fr; }
+  .site-footer > a { grid-column: 2; justify-self: end; }
+}
+@media (max-width: 760px) {
+  :root { --radius-xl: 26px; --radius-lg: 20px; }
+  .site-header { padding: 11px 18px; }
+  .brand-copy small { display: none; }
+  .site-nav { gap: 13px; }
+  .site-nav a:not(.nav-pill) { display: none; }
+  .hero { padding-top: 54px; }
+  .hero h1 { font-size: clamp(50px, 15vw, 76px); }
+  .hero-lead { font-size: 15px; }
+  .hero-visual { min-height: 430px; }
+  .hero-orbit { width: min(94vw, 430px); }
+  .orbit-node { width: 34px; height: 34px; margin: -17px 0 0 -17px; font-size: 9px; }
+  .orbit-caption { display: none; }
+  .section-heading { grid-template-columns: 1fr; gap: 12px; }
+  .section-number { margin-top: 0; }
+  .section-heading h2 { font-size: clamp(31px, 9vw, 48px); }
+  .solar-wheel { width: min(92vw, 520px); }
+  .wheel-term { width: 34px; height: 34px; margin: -17px 0 0 -17px; font-size: 9px; }
+  .wheel-season { width: 30px; height: 30px; font-size: 11px; }
+  .wheel-season.spring, .wheel-season.autumn { left: calc(50% - 15px); }
+  .wheel-season.summer { right: 12.5%; top: calc(50% - 15px); }
+  .wheel-season.winter { left: 12.5%; top: calc(50% - 15px); }
+  .wheel-center { inset: 31%; }
+  .wheel-center strong { font-size: 38px; }
+  .term-head { align-items: flex-start; }
+  .term-title-row h3 { font-size: 52px; }
+  .term-season-badge { width: 42px; height: 42px; font-size: 16px; }
+  .term-metrics, .term-pentads, .term-bottom, .science-stats { grid-template-columns: 1fr; }
+  .term-pentads { gap: 0; }
+  .term-pentad { padding: 13px 0; }
+  .term-metric { padding: 11px 12px; }
+  .pentad-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .science-card, .quiz-card { min-height: auto; padding: 24px; }
+  .science-orbit { opacity: .45; }
+  .quiz-options { grid-template-columns: 1fr; }
+  .site-footer { grid-template-columns: 1fr; align-items: start; padding: 36px 20px; }
+  .site-footer > a { grid-column: auto; justify-self: start; }
+  .journal-entry { grid-template-columns: 46px 1fr; }
+}
+@media (max-width: 430px) {
+  .site-nav .nav-pill { padding: 8px 13px; }
+  .hero-actions .button { flex: 1 1 100%; }
+  .pentad-grid { grid-template-columns: 1fr; }
+  .pentad-card { min-height: 130px; }
+  .solar-wheel { width: 96vw; }
+  .wheel-term { width: 30px; height: 30px; margin: -15px 0 0 -15px; font-size: 8px; }
+  .wheel-center { inset: 29%; }
+  .wheel-center strong { font-size: 32px; }
+  .wheel-center-season { font-size: 10px; }
+  .wheel-center small { font-size: 8px; }
+  .term-title-row { flex-wrap: wrap; }
+  .term-title-row h3 { font-size: 44px; }
+  .term-panel { padding: 22px 18px; }
+  .quiz-head { display: block; }
+  .quiz-progress { display: block; margin-top: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="page-grain" aria-hidden="true"></div>
+
+  <header class="site-header" id="top">
+    <a class="brand" href="#top" aria-label="时间之书首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img"><circle cx="24" cy="24" r="18"></circle><circle cx="24" cy="24" r="11"></circle><path d="M24 4v7M24 37v7M4 24h7M37 24h7M9.9 9.9l5 5M33.1 33.1l5 5M38.1 9.9l-5 5M14.9 33.1l-5 5"></path><circle cx="24" cy="24" r="3"></circle></svg>
+      </span>
+      <span class="brand-copy"><strong>时间之书</strong><small>24 SOLAR TERMS</small></span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="#wheel">节气盘</a>
+      <a href="#pentads">七十二候</a>
+      <a href="#learning">知识实验室</a>
+      <a class="nav-pill" href="#journal">观察手账</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> 今日 · <span id="todayLabel">正在校准天时</span></p>
+        <h1 id="hero-title">把时间，<br><em>读成一本书。</em></h1>
+        <p class="hero-lead">从太阳黄经到草木荣枯，二十四节气是一套把天文、气候与生活连接起来的时间知识体系。转动节令盘，观察每一个十五度的变化。</p>
+
+        <article class="live-term" aria-live="polite">
+          <div class="live-term-top">
+            <span class="live-kicker">当前节气</span>
+            <span class="live-season" id="liveSeason">—</span>
+          </div>
+          <div class="live-term-main">
+            <strong id="liveTermName">—</strong>
+            <span id="liveTermPinyin">—</span>
+          </div>
+          <p id="liveTermPhrase">正在根据太阳视黄经计算当前节气。</p>
+          <div class="live-metrics">
+            <div><span>太阳黄经</span><b id="liveLongitude">—</b></div>
+            <div><span>距下一节气</span><b id="liveCountdown">—</b></div>
+          </div>
+        </article>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="#wheel">开始观时</a>
+          <button class="button button-ghost" id="jumpTodayBtn" type="button">定位今日节气</button>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orbit-halo orbit-halo-a"></div>
+        <div class="orbit-halo orbit-halo-b"></div>
+        <div class="hero-orbit" id="heroOrbit">
+          <div class="orbit-center">
+            <span class="orbit-season" id="orbitSeason">四时</span>
+            <strong id="orbitTerm">节气</strong>
+            <small id="orbitLongitude">黄经 —</small>
+          </div>
+        </div>
+        <div class="orbit-caption">
+          <span>太阳视黄经</span>
+          <strong>15° · 一个节气</strong>
+          <span>360° · 一岁循环</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wheel-section" id="wheel" aria-labelledby="wheel-title">
+      <header class="section-heading">
+        <p class="section-number">01 / 节令盘</p>
+        <div>
+          <h2 id="wheel-title">二十四节气，一部可旋转的天文历</h2>
+          <p>每个节气相隔约十五天，对应太阳在黄道上每运行十五度。点击圆环上的节气，查看它的天文位置、物候和农事线索。</p>
+        </div>
+      </header>
+
+      <div class="wheel-layout">
+        <div class="solar-wheel-wrap">
+          <div class="solar-wheel" id="solarWheel" role="group" aria-label="二十四节气交互圆盘">
+            <div class="wheel-ring wheel-ring-outer" aria-hidden="true"></div>
+            <div class="wheel-ring wheel-ring-inner" aria-hidden="true"></div>
+            <div class="wheel-seasons" aria-hidden="true">
+              <span class="wheel-season spring">春</span>
+              <span class="wheel-season summer">夏</span>
+              <span class="wheel-season autumn">秋</span>
+              <span class="wheel-season winter">冬</span>
+            </div>
+            <div class="wheel-center" aria-live="polite">
+              <span class="wheel-center-season" id="wheelSeason">春</span>
+              <strong id="wheelTerm">立春</strong>
+              <small id="wheelHint">黄经 315°</small>
+            </div>
+            <div class="wheel-terms" id="wheelTerms"></div>
+            <div class="wheel-pointer" aria-hidden="true"></div>
+          </div>
+          <p class="wheel-note">圆环从立春起顺时针展开；内圈虚线表示太阳视黄经每 60° 的季节分区。</p>
+        </div>
+
+        <article class="term-panel" id="termPanel" aria-live="polite">
+          <div id="termDetail"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section pentad-section" id="pentads" aria-labelledby="pentads-title">
+      <header class="section-heading">
+        <p class="section-number">02 / 七十二候</p>
+        <div>
+          <h2 id="pentads-title">五日为候，三候成节气</h2>
+          <p>古人把每个节气分为三候，以物候变化记录季节推进。点击任意一候，回到它所属的节气。</p>
+        </div>
+      </header>
+
+      <div class="season-filter" id="seasonFilter" role="group" aria-label="按季节筛选七十二候">
+        <button class="season-button is-active" type="button" data-season="all">全部</button>
+        <button class="season-button" type="button" data-season="spring">春</button>
+        <button class="season-button" type="button" data-season="summer">夏</button>
+        <button class="season-button" type="button" data-season="autumn">秋</button>
+        <button class="season-button" type="button" data-season="winter">冬</button>
+      </div>
+      <div class="pentad-grid" id="pentadGrid"></div>
+    </section>
+
+    <section class="section learning-section" id="learning" aria-labelledby="learning-title">
+      <header class="section-heading">
+        <p class="section-number">03 / 知识实验室</p>
+        <div>
+          <h2 id="learning-title">从“知道”到“会解释”</h2>
+          <p>先读天时数据，再用小测验检验理解。题目由节气与物候数据动态生成，每次练习都会重新组合。</p>
+        </div>
+      </header>
+
+      <div class="learning-grid">
+        <article class="science-card">
+          <div class="card-label">太阳观测台</div>
+          <div class="science-orbit" aria-hidden="true">
+            <div class="science-sun"></div>
+            <div class="science-earth"><span>地球</span></div>
+            <div class="science-axis"></div>
+          </div>
+          <h3 id="scienceTitle">此刻，太阳走到哪里？</h3>
+          <p id="scienceCopy">正在计算太阳视黄经和太阳直射点纬度。</p>
+          <dl class="science-stats">
+            <div><dt>太阳视黄经</dt><dd id="scienceLongitude">—</dd></div>
+            <div><dt>太阳直射点</dt><dd id="scienceDeclination">—</dd></div>
+            <div><dt>下一节气</dt><dd id="scienceNextTerm">—</dd></div>
+          </dl>
+          <div class="observation-prompt">
+            <span>今日观察</span>
+            <p id="observationPrompt">留意天空、风向和植物的变化，把它们写进观察手账。</p>
+          </div>
+        </article>
+
+        <article class="quiz-card" id="quizCard">
+          <div class="quiz-head">
+            <div>
+              <div class="card-label">节气小测</div>
+              <h3>你是怎样理解时间的？</h3>
+            </div>
+            <span class="quiz-progress" id="quizProgress">1 / 8</span>
+          </div>
+          <div class="quiz-body" id="quizBody"></div>
+          <div class="quiz-footer">
+            <span id="quizFeedback" role="status" aria-live="polite"></span>
+            <button class="button button-small button-primary" id="quizNextBtn" type="button">下一题</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section journal-section" id="journal" aria-labelledby="journal-title">
+      <header class="section-heading">
+        <p class="section-number">04 / 观察手账</p>
+        <div>
+          <h2 id="journal-title">把今天的节气，写成自己的记录</h2>
+          <p>选择节气、勾选已经观察到的物候，再写下一句现场记录。数据只保存在当前浏览器，不会上传。</p>
+        </div>
+      </header>
+
+      <div class="journal-grid">
+        <form class="journal-form" id="journalForm">
+          <label class="field-label" for="journalTerm">记录节气</label>
+          <select id="journalTerm" name="term"></select>
+
+          <fieldset class="pentad-picker">
+            <legend>今日观察到的物候</legend>
+            <div id="journalPentads"></div>
+          </fieldset>
+
+          <label class="field-label" for="journalNote">现场记录</label>
+          <textarea id="journalNote" name="note" rows="5" maxlength="280" placeholder="例如：今天傍晚风从东南来，楼下的玉兰已经冒出花苞……"></textarea>
+          <div class="field-meta"><span>最多 280 字</span><span id="noteCount">0 / 280</span></div>
+
+          <div class="journal-actions">
+            <button class="button button-primary" type="submit">保存观察</button>
+            <button class="button button-ghost" type="button" id="exportCardBtn">导出节气卡</button>
+          </div>
+          <p class="form-note">节气卡会根据当前选择和观察记录生成 PNG，可保存为个人学习成果。</p>
+        </form>
+
+        <aside class="journal-side">
+          <div class="journal-preview">
+            <div class="journal-preview-head">
+              <span>节气卡预览</span>
+              <small>1200 × 1600</small>
+            </div>
+            <canvas id="cardCanvas" width="1200" height="1600" aria-label="二十四节气观察卡预览"></canvas>
+          </div>
+          <div class="journal-history">
+            <div class="history-head"><h3>最近记录</h3><button class="text-button" id="clearJournalBtn" type="button">清空</button></div>
+            <div id="journalEntries"><p class="empty-state">还没有观察记录。选一个节气，写下第一条吧。</p></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <strong>时间之书</strong>
+      <p>二十四节气的天文与物候科普 · 纯前端 Web 应用</p>
+    </div>
+    <div class="footer-meta">
+      <p>节气交节时刻以中国科学院紫金山天文台等正式历算发布为准。</p>
+      <p>传统文化内容按公开通行资料整理；页面不依赖外部 AI 接口，可离线运行。</p>
+    </div>
+    <a href="#top">回到顶部 ↑</a>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <div class="noscript">本作品需要启用 JavaScript 才能使用节令盘、知识测验和观察手账。</div>
+  </noscript>
+
+  <script>
+/*
+ * 时间之书 · 二十四节气科普数据
+ * 节气名称、七十二候与传统文化内容按公开通行资料整理。
+ * 太阳黄经与交节日期由前端近似算法推算，正式历算以紫金山天文台发布为准。
+ */
+const TIMEBOOK_DATA = {
+  seasons: {
+    spring: { label: '春', name: '春季', color: '#6f9b72', soft: '#dfe9d8', ink: '#1d3529' },
+    summer: { label: '夏', name: '夏季', color: '#c65c3d', soft: '#f2d8c8', ink: '#43231b' },
+    autumn: { label: '秋', name: '秋季', color: '#b18a42', soft: '#eee1c2', ink: '#3f301b' },
+    winter: { label: '冬', name: '冬季', color: '#506b7f', soft: '#d9e2e7', ink: '#1d2b34' }
+  },
+  terms: [
+    {
+      id: 'lichun', name: '立春', pinyin: 'Lì Chūn', order: 0, season: 'spring', longitude: 315, dateHint: '2月3—5日', glyph: '启',
+      phrase: '东风解冻，万物起始', summary: '立春是二十四节气的第一个节气，标志着春季的开始。此时太阳到达黄经315°，北半球接收到的太阳辐射逐渐增强，但气温回升仍有明显地域差异。',
+      astronomy: '太阳直射点从南半球向北移动，北半球昼渐长、夜渐短。黄河流域仍是冬末景象，华南已能感到春意。',
+      fact: '“立”是开始的意思。节气上的立春不等于气象学入春，连续5天日平均气温稳定达到10℃以上，才算进入气象学春季。',
+      agriculture: '各地开始整地、备种、检修农具；设施农业注意保温和通风，防范倒春寒。',
+      custom: ['迎春', '咬春', '打春牛'],
+      health: '注意“春捂”，不要因短暂回暖过早减衣；饮食可清淡多样，逐渐增加户外活动。',
+      poem: { text: '律回岁晚冰霜少，春到人间草木知。', author: '张栻', work: '《立春偶成》' },
+      palette: { bg1: '#eef0dc', bg2: '#d5e2c4', accent: '#6f8f59', deep: '#243b2c' },
+      pentads: [
+        { name: '东风解冻', note: '东风送来暖意，冻结的河水与土地开始消融。' },
+        { name: '蛰虫始振', note: '蛰伏于土中的昆虫逐渐苏醒，在洞穴中开始活动。' },
+        { name: '鱼陟负冰', note: '水底升温，鱼游向仍有碎冰的水面。' }
+      ]
+    },
+    {
+      id: 'yushui', name: '雨水', pinyin: 'Yǔ Shuǐ', order: 1, season: 'spring', longitude: 330, dateHint: '2月18—20日', glyph: '润',
+      phrase: '冰雪消融，降水渐增', summary: '雨水节气意味着降雨开始增多、雪渐少。太阳到达黄经330°，东亚季风环流逐步调整，空气湿度上升。',
+      astronomy: '太阳直射点继续北移，北半球日照时间增加。冷暖空气频繁交汇，容易形成连绵阴雨。',
+      fact: '“雨水”描述的是气候趋势，不代表每个地区当天都会下雨。此时降水形态正由雪向雨过渡。',
+      agriculture: '冬小麦、油菜进入返青期，需看苗追肥、清沟排水；果树开始修剪和病虫防治。',
+      custom: ['回娘屋', '拉保保', '占稻色'],
+      health: '湿气渐重，注意关节保暖和室内通风；饮食宜少油腻，适量食用新鲜蔬菜。',
+      poem: { text: '好雨知时节，当春乃发生。', author: '杜甫', work: '《春夜喜雨》' },
+      palette: { bg1: '#e6efe8', bg2: '#cbdcd6', accent: '#5b8a82', deep: '#1e3532' },
+      pentads: [
+        { name: '獭祭鱼', note: '水獭捕鱼后把鱼排列在水边，古人想象其如祭祀。' },
+        { name: '候雁北', note: '大雁感知季节变化，开始由南向北迁徙。' },
+        { name: '草木萌动', note: '土壤水分充足，草木抽出嫩芽。' }
+      ]
+    },
+    {
+      id: 'jingzhe', name: '惊蛰', pinyin: 'Jīng Zhé', order: 2, season: 'spring', longitude: 345, dateHint: '3月5—7日', glyph: '醒',
+      phrase: '春雷乍动，蛰虫惊醒', summary: '惊蛰时节气温回升加快，春雷开始出现。冬眠的动物逐渐苏醒，自然界进入活跃生长期。',
+      astronomy: '太阳直射点接近赤道，北半球获得的太阳热量迅速增加。地表升温使空气对流增强，雷电活动增多。',
+      fact: '并不是所有地区都会在惊蛰当天听到雷声。雷声出现与否取决于当地水汽、温度和不稳定大气条件。',
+      agriculture: '春耕由南向北展开，冬小麦进入拔节期，要防病虫、防倒春寒，果树注意花期管理。',
+      custom: ['吃梨', '祭白虎', '蒙鼓皮'],
+      health: '昼夜温差仍大，呼吸道疾病多发；规律作息、适度运动，避免过早贪凉。',
+      poem: { text: '微雨众卉新，一雷惊蛰始。', author: '韦应物', work: '《观田家》' },
+      palette: { bg1: '#e9edd8', bg2: '#d7dfb9', accent: '#7c9148', deep: '#29351d' },
+      pentads: [
+        { name: '桃始华', note: '桃花感受到暖意，开始绽放。' },
+        { name: '仓庚鸣', note: '黄鹂开始鸣叫，宣告春意渐浓。' },
+        { name: '鹰化为鸠', note: '古人观察到猛禽渐少、鸠鸟增多，留下这一物候记述。' }
+      ]
+    },
+    {
+      id: 'chunfen', name: '春分', pinyin: 'Chūn Fēn', order: 3, season: 'spring', longitude: 0, dateHint: '3月20—22日', glyph: '衡',
+      phrase: '昼夜均分，春色正中', summary: '春分时太阳直射赤道，全球大部分地区昼夜接近等长。此后北半球昼渐长、夜渐短。',
+      astronomy: '太阳黄经为0°，太阳直射点位于赤道。春分也是天文学上北半球春季的起点之一。',
+      fact: '“分”有平分之意：既平分昼夜，也平分春季。严格来说，只有太阳直射赤道的那一刻，全球昼夜才理论上等长。',
+      agriculture: '江南早稻育秧，北方进入春播准备；小麦拔节、油菜开花，需加强水肥和病虫管理。',
+      custom: ['竖蛋', '吃春菜', '放风筝'],
+      health: '饮食注意寒热均衡，保持情绪舒畅；花粉过敏人群减少高浓度花粉时段外出。',
+      poem: { text: '仲春初四日，春色正中分。', author: '徐铉', work: '《春分日》' },
+      palette: { bg1: '#f1eddc', bg2: '#dfe6c8', accent: '#829b5c', deep: '#2d3b24' },
+      pentads: [
+        { name: '玄鸟至', note: '燕子从南方飞回北方，开始筑巢繁殖。' },
+        { name: '雷乃发声', note: '暖湿空气活跃，春雷开始出现。' },
+        { name: '始电', note: '伴随雷雨，天空开始出现闪电。' }
+      ]
+    },
+    {
+      id: 'qingming', name: '清明', pinyin: 'Qīng Míng', order: 4, season: 'spring', longitude: 15, dateHint: '4月4—6日', glyph: '明',
+      phrase: '气清景明，万物皆显', summary: '清明既是节气，也是传统节日。此时气温升高、雨量增多，草木繁茂，天地呈现清朗明净之景。',
+      astronomy: '太阳直射点继续北移，北半球昼长夜短。东亚地区水汽条件改善，降雨逐渐增多。',
+      fact: '清明兼具自然节气与人文节日双重属性。扫墓祭祖和踏青郊游，是清明常见的文化传统。',
+      agriculture: '南方早稻插秧，北方播种春玉米、棉花；茶园进入采摘期，注意防范低温阴雨。',
+      custom: ['扫墓祭祖', '踏青', '插柳'],
+      health: '天气多变，注意防寒防湿；外出踏青做好花粉防护，饮食宜清淡。',
+      poem: { text: '清明时节雨纷纷，路上行人欲断魂。', author: '杜牧', work: '《清明》' },
+      palette: { bg1: '#e8f0df', bg2: '#c9dec5', accent: '#5e936a', deep: '#1f3a2a' },
+      pentads: [
+        { name: '桐始华', note: '泡桐树开出淡紫色花朵。' },
+        { name: '田鼠化为鴽', note: '古人见田鼠减少、鹌鹑类小鸟增多，形成这一物候想象。' },
+        { name: '虹始见', note: '雨后空气湿润，阳光折射形成彩虹。' }
+      ]
+    },
+    {
+      id: 'guyu', name: '谷雨', pinyin: 'Gǔ Yǔ', order: 5, season: 'spring', longitude: 30, dateHint: '4月19—21日', glyph: '生',
+      phrase: '雨生百谷，春将归去', summary: '谷雨是春季最后一个节气。此时降水明显增加，适宜谷物生长，也意味着春末夏初的过渡即将到来。',
+      astronomy: '太阳直射点向北移动至北纬10°附近，北半球日照进一步增强，暖湿气流更加活跃。',
+      fact: '“雨生百谷”强调春雨对农作物的作用。谷雨时节，中国南方常进入多雨期，北方则仍可能受干旱影响。',
+      agriculture: '水稻栽插、玉米播种、棉花管理进入关键期；注意防范暴雨、渍害和病虫害。',
+      custom: ['赏牡丹', '喝谷雨茶', '祭海'],
+      health: '湿气偏重，注意脾胃调理；过敏体质人群留意飞絮和花粉。',
+      poem: { text: '谷雨如丝复似尘，煮瓶浮蜡正尝新。', author: '范成大', work: '《晚春田园杂兴》' },
+      palette: { bg1: '#e5eee1', bg2: '#c5d9bf', accent: '#4f8b62', deep: '#1c3928' },
+      pentads: [
+        { name: '萍始生', note: '水面浮萍开始快速生长。' },
+        { name: '鸣鸠拂其羽', note: '布谷鸟振翅鸣叫，提醒农时。' },
+        { name: '戴胜降于桑', note: '戴胜鸟落在桑树上，蚕事渐忙。' }
+      ]
+    },
+    {
+      id: 'lixia', name: '立夏', pinyin: 'Lì Xià', order: 6, season: 'summer', longitude: 45, dateHint: '5月5—7日', glyph: '长',
+      phrase: '万物并秀，夏日初长', summary: '立夏表示夏季开始。太阳到达黄经45°，北半球昼长夜短，气温升高，植物进入旺盛生长期。',
+      astronomy: '太阳直射点继续北移，北半球接收的太阳辐射增加。北方多地仍可能出现晚霜或低温天气。',
+      fact: '节气立夏与气象学入夏不同。气象学通常以连续5天日平均气温稳定达到22℃以上作为入夏标准。',
+      agriculture: '早稻栽插、棉花苗期管理、果树疏果；注意抗旱、防涝和病虫害。',
+      custom: ['称人', '斗蛋', '尝新'],
+      health: '气温上升，注意补水与防晒；饮食宜清淡，避免过度贪凉。',
+      poem: { text: '绿阴生昼静，孤花表春余。', author: '韦应物', work: '《游开元精舍》' },
+      palette: { bg1: '#f3e6d5', bg2: '#e8cbb0', accent: '#b7653e', deep: '#43251a' },
+      pentads: [
+        { name: '蝼蝈鸣', note: '蛙类开始在田间鸣叫。' },
+        { name: '蚯蚓出', note: '土壤温度升高，蚯蚓活动频繁。' },
+        { name: '王瓜生', note: '王瓜藤蔓迅速生长。' }
+      ]
+    },
+    {
+      id: 'xiaoman', name: '小满', pinyin: 'Xiǎo Mǎn', order: 7, season: 'summer', longitude: 60, dateHint: '5月20—22日', glyph: '盈',
+      phrase: '麦粒渐满，暑气初萌', summary: '小满时夏熟作物籽粒开始灌浆，但尚未完全成熟。南方进入多雨时段，北方则需防范干热风。',
+      astronomy: '太阳直射点接近北回归线，北半球日照时间继续增加，地表热量累积。',
+      fact: '“小满”指麦类作物籽粒渐满，并非指降雨量。二十四节气中有小满而无大满，体现传统节气命名中的节制意味。',
+      agriculture: '小麦灌浆、油菜成熟收获，水稻田管加强；南方注意防汛排涝。',
+      custom: ['祭车神', '蚕神诞辰', '吃苦菜'],
+      health: '气温升高、湿度增加，注意皮肤和肠胃健康；避免久处空调冷风。',
+      poem: { text: '麦穗初齐稚子娇，桑叶正肥蚕食饱。', author: '欧阳修', work: '《归田园四时乐春夏二首》' },
+      palette: { bg1: '#f5ead5', bg2: '#e8d1a3', accent: '#b58a36', deep: '#433116' },
+      pentads: [
+        { name: '苦菜秀', note: '苦菜生长旺盛，成为时令野菜。' },
+        { name: '靡草死', note: '一些喜阴细弱的草类在强光高温下枯萎。' },
+        { name: '麦秋至', note: '麦类作物接近成熟，进入收获前奏。' }
+      ]
+    },
+    {
+      id: 'mangzhong', name: '芒种', pinyin: 'Máng Zhòng', order: 8, season: 'summer', longitude: 75, dateHint: '6月5—7日', glyph: '忙',
+      phrase: '有芒可种，忙收忙种', summary: '芒种是仲夏时节，麦类等有芒作物成熟，稻谷等作物进入播种、移栽关键期，农事十分繁忙。',
+      astronomy: '太阳直射点继续北移，北半球接近白昼最长时段。高温高湿与雷雨天气增多。',
+      fact: '“芒”指麦类等作物的芒，“种”既指种子，也指播种。芒种是农事节奏最紧凑的节气之一。',
+      agriculture: '北方抢收小麦、抢种夏玉米，南方插秧、管水；注意梅雨、洪涝与高温热害。',
+      custom: ['送花神', '安苗', '煮梅'],
+      health: '湿热渐盛，注意补水、防暑和食品卫生；睡眠宜规律。',
+      poem: { text: '时雨及芒种，四野皆插秧。', author: '陆游', work: '《时雨》' },
+      palette: { bg1: '#f1e4c9', bg2: '#dfc899', accent: '#a97b2f', deep: '#3e2c13' },
+      pentads: [
+        { name: '螳螂生', note: '螳螂在温暖季节孵化并开始活动。' },
+        { name: '鵙始鸣', note: '伯劳鸟开始在枝头鸣叫。' },
+        { name: '反舌无声', note: '善于鸣叫的反舌鸟逐渐停止鸣唱。' }
+      ]
+    },
+    {
+      id: 'xiazhi', name: '夏至', pinyin: 'Xià Zhì', order: 9, season: 'summer', longitude: 90, dateHint: '6月21—22日', glyph: '极',
+      phrase: '日北至，昼最长', summary: '夏至时太阳直射北回归线，北半球白昼达到全年最长。此后太阳直射点南移，但气温仍会继续升高。',
+      astronomy: '太阳黄经为90°，太阳直射点位于北纬23.44°附近。北半球正午太阳高度达到全年最大。',
+      fact: '夏至并不是全年最热的一天。地表热量累积有滞后效应，通常“三伏天”才是一年中最热的阶段。',
+      agriculture: '水稻进入分蘖盛期，玉米快速生长；防高温、防干旱、防暴雨和病虫害。',
+      custom: ['吃面', '祭祖', '消夏避伏'],
+      health: '避免长时间暴晒，补水补盐；空调温度不宜过低，注意心血管和肠胃健康。',
+      poem: { text: '昼晷已云极，宵漏自此长。', author: '韦应物', work: '《夏至避暑北池》' },
+      palette: { bg1: '#f5dfc9', bg2: '#e9b68f', accent: '#c25532', deep: '#472016' },
+      pentads: [
+        { name: '鹿角解', note: '古人观察到鹿角在此时开始脱落，留下物候记录。' },
+        { name: '蜩始鸣', note: '蝉类开始高声鸣叫。' },
+        { name: '半夏生', note: '半夏等喜湿植物进入生长期。' }
+      ]
+    },
+    {
+      id: 'xiaoshu', name: '小暑', pinyin: 'Xiǎo Shǔ', order: 10, season: 'summer', longitude: 105, dateHint: '7月6—8日', glyph: '暑',
+      phrase: '温风初至，暑气渐盛', summary: '小暑表示天气开始炎热，但尚未达到一年中最热。此时雷雨、台风和高温天气在多地交替出现。',
+      astronomy: '太阳直射点开始从北回归线南移，北半球仍处于高太阳辐射期。',
+      fact: '“暑”表示炎热，小暑之后常进入三伏天。三伏日期按干支纪日推算，并不完全对应固定公历日期。',
+      agriculture: '水稻、玉米进入生长关键期，需合理灌溉；棉花整枝打杈，防高温热害。',
+      custom: ['食新', '晒书晒衣', '吃藕'],
+      health: '注意防暑降温、及时补水；饮食宜清淡，避免暴饮暴食和过度冷饮。',
+      poem: { text: '倏忽温风至，因循小暑来。', author: '元稹', work: '《咏廿四气诗·小暑六月节》' },
+      palette: { bg1: '#f4ddc5', bg2: '#eab18c', accent: '#c65b36', deep: '#4a2117' },
+      pentads: [
+        { name: '温风至', note: '热风盛行，空气带着明显暑意。' },
+        { name: '蟋蟀居宇', note: '蟋蟀因地面炎热，迁到庭院墙角活动。' },
+        { name: '鹰始鸷', note: '幼鹰开始学习飞翔和捕猎。' }
+      ]
+    },
+    {
+      id: 'dashu', name: '大暑', pinyin: 'Dà Shǔ', order: 11, season: 'summer', longitude: 120, dateHint: '7月22—24日', glyph: '盛',
+      phrase: '湿热蒸腾，雷雨时行', summary: '大暑通常是一年中最炎热的时段，高温与高湿叠加，雷阵雨频繁。此时也是农作物生长最快的时期之一。',
+      astronomy: '太阳直射点继续南移，但北半球地表积蓄的热量达到高峰，常出现全年最高气温。',
+      fact: '大暑常处于“中伏”前后。高温高湿会影响人体散热效率，体感温度可能明显高于气温。',
+      agriculture: '水稻抽穗、玉米灌浆，需加强水肥管理；重点防范伏旱、洪涝和病虫害。',
+      custom: ['送大暑船', '喝伏茶', '吃仙草'],
+      health: '减少正午户外活动，谨防中暑；注意食品保存，及时补充水分和电解质。',
+      poem: { text: '大暑三秋近，林钟九夏移。', author: '元稹', work: '《咏廿四气诗·大暑六月中》' },
+      palette: { bg1: '#f2d8c2', bg2: '#e6ad83', accent: '#c04d2f', deep: '#481f15' },
+      pentads: [
+        { name: '腐草为萤', note: '古人见萤火虫从草丛飞出，形成“腐草化萤”的想象。' },
+        { name: '土润溽暑', note: '土壤湿润，空气闷热，暑气蒸腾。' },
+        { name: '大雨时行', note: '雷阵雨频繁，常伴短时强降水。' }
+      ]
+    },
+    {
+      id: 'liqiu', name: '立秋', pinyin: 'Lì Qiū', order: 12, season: 'autumn', longitude: 135, dateHint: '8月7—9日', glyph: '收',
+      phrase: '凉风渐起，禾谷成熟', summary: '立秋表示秋季开始。太阳到达黄经135°，但许多地区仍处在高温之中，常出现“秋老虎”。',
+      astronomy: '太阳直射点明显南移，北半球昼长缩短，太阳高度降低，昼夜温差开始增大。',
+      fact: '立秋并不意味着暑热立即结束。气象学入秋通常要求连续5天日平均气温稳定低于22℃。',
+      agriculture: '玉米、水稻灌浆成熟，棉花吐絮；注意防范干旱、连阴雨和低温冷害。',
+      custom: ['贴秋膘', '啃秋', '晒秋'],
+      health: '早晚温差增大，注意增减衣物；饮食可逐渐减少生冷，重视润燥。',
+      poem: { text: '云天收夏色，木叶动秋声。', author: '刘言史', work: '《立秋》' },
+      palette: { bg1: '#f2e8cf', bg2: '#dfcda0', accent: '#a98237', deep: '#3d2e16' },
+      pentads: [
+        { name: '凉风至', note: '偏北风带来凉意，暑热开始减退。' },
+        { name: '白露降', note: '夜间气温下降，清晨出现露水。' },
+        { name: '寒蝉鸣', note: '寒蝉感知季节变化，开始鸣叫。' }
+      ]
+    },
+    {
+      id: 'chushu', name: '处暑', pinyin: 'Chǔ Shǔ', order: 13, season: 'autumn', longitude: 150, dateHint: '8月22—24日', glyph: '止',
+      phrase: '暑气至此而止', summary: '处暑表示炎热的暑天接近尾声。此时副热带高压南退，北方凉意渐显，南方仍可能有高温天气。',
+      astronomy: '太阳直射点继续南移，北半球获得的太阳辐射减少，昼夜温差进一步增大。',
+      fact: '“处”有终止、躲藏之意。处暑后，冷空气活动逐渐增多，但“秋老虎”仍可能带来阶段性高温。',
+      agriculture: '水稻抽穗灌浆，玉米、大豆成熟；注意防范秋旱、连阴雨和台风。',
+      custom: ['放河灯', '开渔节', '煎药茶'],
+      health: '昼热夜凉，注意腹部和关节保暖；饮食宜润燥，适量增加蔬果。',
+      poem: { text: '处暑无三日，新凉直万金。', author: '苏泂', work: '《长江二首》' },
+      palette: { bg1: '#eee8d2', bg2: '#d8d1ac', accent: '#938448', deep: '#35301c' },
+      pentads: [
+        { name: '鹰乃祭鸟', note: '古人观察猛禽捕猎后陈列猎物，想象其如祭祀。' },
+        { name: '天地始肃', note: '草木渐衰，天地呈现清肃之气。' },
+        { name: '禾乃登', note: '谷物成熟，进入收获季节。' }
+      ]
+    },
+    {
+      id: 'bailu', name: '白露', pinyin: 'Bái Lù', order: 14, season: 'autumn', longitude: 165, dateHint: '9月7—9日', glyph: '露',
+      phrase: '露凝而白，秋意渐深', summary: '白露时节夜间水汽凝结成露，清晨可见白色露珠。此时昼夜温差加大，秋意逐渐明显。',
+      astronomy: '太阳直射点接近赤道，北半球昼夜接近等长。晴朗少云的夜晚更容易辐射降温并形成露水。',
+      fact: '露不是从天而降的水，而是近地面空气中的水汽在物体表面凝结形成的小水滴。',
+      agriculture: '秋收作物进入成熟期，棉花采收、果树管理；注意防范低温、连阴雨和病虫。',
+      custom: ['收清露', '饮白露茶', '吃龙眼'],
+      health: '早晚温差大，注意防凉；空气渐燥，适当补充水分、润肺养阴。',
+      poem: { text: '露从今夜白，月是故乡明。', author: '杜甫', work: '《月夜忆舍弟》' },
+      palette: { bg1: '#e8e9dc', bg2: '#ccd3c4', accent: '#77866f', deep: '#283128' },
+      pentads: [
+        { name: '鸿雁来', note: '大雁开始向南迁徙。' },
+        { name: '玄鸟归', note: '燕子离开北方，返回南方越冬。' },
+        { name: '群鸟养羞', note: '鸟类开始储藏食物，为越冬做准备。' }
+      ]
+    },
+    {
+      id: 'qiufen', name: '秋分', pinyin: 'Qiū Fēn', order: 15, season: 'autumn', longitude: 180, dateHint: '9月22—24日', glyph: '均',
+      phrase: '昼夜均分，秋色平分', summary: '秋分时太阳直射赤道，全球大部分地区昼夜接近等长。此后北半球昼短夜长，秋色渐深。',
+      astronomy: '太阳黄经为180°，太阳直射点位于赤道。秋分也是天文学上北半球秋季的起点之一。',
+      fact: '秋分与春分一样，都是太阳直射赤道的时刻。中国农民丰收节设在每年秋分。',
+      agriculture: '秋收、秋耕、秋种全面展开；北方播种冬小麦，南方收获晚稻。',
+      custom: ['祭月', '竖蛋', '吃秋菜'],
+      health: '昼夜温差明显，注意保暖；秋燥渐重，饮食宜滋阴润燥。',
+      poem: { text: '金气秋分，风清露冷秋期半。', author: '谢逸', work: '《点绛唇·金气秋分》' },
+      palette: { bg1: '#f1e5cf', bg2: '#dfc89b', accent: '#a97b32', deep: '#3d2d15' },
+      pentads: [
+        { name: '雷始收声', note: '气温下降，强对流天气减少，雷声渐少。' },
+        { name: '蛰虫坯户', note: '昆虫开始封堵洞穴，准备越冬。' },
+        { name: '水始涸', note: '降水减少，河流湖泊水位开始下降。' }
+      ]
+    },
+    {
+      id: 'hanlu', name: '寒露', pinyin: 'Hán Lù', order: 16, season: 'autumn', longitude: 195, dateHint: '10月8—9日', glyph: '寒',
+      phrase: '露气寒冷，将凝为霜', summary: '寒露时气温继续下降，露水更凉。北方深秋景象明显，南方秋意也已浓厚。',
+      astronomy: '太阳直射点南移，北半球太阳高度降低，地面获得的热量明显减少。',
+      fact: '寒露与白露都涉及露，但寒露时气温更低。若近地面温度降到0℃以下，水汽可能直接凝华成霜。',
+      agriculture: '棉花采收、冬小麦播种，晚稻灌浆；注意防寒露风、秋旱和连阴雨。',
+      custom: ['赏菊花', '登高', '饮菊花酒'],
+      health: '注意足部和腹部保暖；饮食宜温润，适当食用芝麻、梨、银耳等。',
+      poem: { text: '袅袅凉风动，凄凄寒露零。', author: '白居易', work: '《池上》' },
+      palette: { bg1: '#e8e2d2', bg2: '#cfc4aa', accent: '#8b7650', deep: '#322a1c' },
+      pentads: [
+        { name: '鸿雁来宾', note: '最后一批大雁南迁，古人称迟来者为“宾”。' },
+        { name: '雀入大水为蛤', note: '古人见雀鸟减少、蛤蜊增多，形成这一物候想象。' },
+        { name: '菊有黄华', note: '菊花盛开，成为深秋代表性景物。' }
+      ]
+    },
+    {
+      id: 'shuangjiang', name: '霜降', pinyin: 'Shuāng Jiàng', order: 17, season: 'autumn', longitude: 210, dateHint: '10月23—24日', glyph: '霜',
+      phrase: '霜始降，秋向尽', summary: '霜降是秋季最后一个节气。气温继续降低，北方多地开始出现霜冻，草木逐渐枯黄。',
+      astronomy: '太阳直射点继续南移，北半球夜间辐射冷却增强，晴朗无风的夜晚更容易形成霜。',
+      fact: '霜不是从天上落下来的，而是近地面水汽在低温物体表面凝华形成的小冰晶。',
+      agriculture: '做好防霜冻、防寒准备；收获晚秋作物，冬小麦、油菜加强苗期管理。',
+      custom: ['赏菊', '吃柿子', '登高'],
+      health: '注意防寒保暖，尤其保护呼吸道和关节；饮食可适当温补，但不宜过度油腻。',
+      poem: { text: '霜降水返壑，风落木归山。', author: '白居易', work: '《岁晚》' },
+      palette: { bg1: '#e5ded0', bg2: '#c9bca2', accent: '#856946', deep: '#302619' },
+      pentads: [
+        { name: '豺乃祭兽', note: '古人观察豺狼捕猎后陈列猎物，想象其如祭祀。' },
+        { name: '草木黄落', note: '草木叶片变黄脱落，准备越冬。' },
+        { name: '蛰虫咸俯', note: '昆虫藏入洞穴，进入越冬状态。' }
+      ]
+    },
+    {
+      id: 'lidong', name: '立冬', pinyin: 'Lì Dōng', order: 18, season: 'winter', longitude: 225, dateHint: '11月7—8日', glyph: '藏',
+      phrase: '水始冰，万物收藏', summary: '立冬表示冬季开始。太阳到达黄经225°，北半球昼短夜长，冷空气活动逐渐频繁。',
+      astronomy: '太阳直射点继续南移，北半球太阳高度降低，地表获得的太阳辐射减少。',
+      fact: '节气立冬不等于气象学入冬。气象学通常以连续5天日平均气温稳定低于10℃作为冬季开始标准。',
+      agriculture: '秋收冬藏，北方做好防寒保温；冬小麦、油菜加强越冬管理，果树进行修剪。',
+      custom: ['吃饺子', '补冬', '祭祖饮宴'],
+      health: '注意保暖，早睡晚起；饮食可适当增加温热食物，但应均衡搭配。',
+      poem: { text: '细雨生寒未有霜，庭前木叶半青黄。', author: '仇远', work: '《立冬即事二首》' },
+      palette: { bg1: '#dde4e4', bg2: '#bfcfd1', accent: '#587985', deep: '#1e3037' },
+      pentads: [
+        { name: '水始冰', note: '北方水域开始结出薄冰。' },
+        { name: '地始冻', note: '土壤表层开始冻结。' },
+        { name: '雉入大水为蜃', note: '古人见雉鸟减少、海边出现大蛤，形成这一物候想象。' }
+      ]
+    },
+    {
+      id: 'xiaoxue', name: '小雪', pinyin: 'Xiǎo Xuě', order: 19, season: 'winter', longitude: 240, dateHint: '11月22—23日', glyph: '雪',
+      phrase: '寒未深，雪未大', summary: '小雪表示降雪开始出现，但雪量通常不大。北方部分地区已见初雪，南方仍以降雨为主。',
+      astronomy: '太阳直射点接近南回归线，北半球太阳高度继续降低，冷空气势力增强。',
+      fact: '节气“小雪”描述的是气候趋势，不代表当天一定下雪，也不代表降雪量小。',
+      agriculture: '北方做好设施农业保温，南方加强油菜、小麦田间管理；注意防寒防冻。',
+      custom: ['腌腊肉', '晒鱼干', '吃糍粑'],
+      health: '天气寒冷干燥，注意呼吸道和皮肤保湿；室内取暖注意通风。',
+      poem: { text: '花雪随风不厌看，更多还肯失林峦。', author: '徐铉', work: '《和萧郎中小雪日作》' },
+      palette: { bg1: '#e2e8e8', bg2: '#c6d3d6', accent: '#64818a', deep: '#21343a' },
+      pentads: [
+        { name: '虹藏不见', note: '气温降低、降水减少，彩虹少见。' },
+        { name: '天气上升地气下降', note: '古人以阴阳气机解释冬季天地闭塞、万物收藏。' },
+        { name: '闭塞而成冬', note: '寒气加重，自然界进入闭塞的冬季状态。' }
+      ]
+    },
+    {
+      id: 'daxue', name: '大雪', pinyin: 'Dà Xuě', order: 20, season: 'winter', longitude: 255, dateHint: '12月6—8日', glyph: '深',
+      phrase: '雪意渐深，山河素裹', summary: '大雪时节气温进一步下降，北方降雪增多，部分地区积雪加深。南方也可能出现低温雨雪天气。',
+      astronomy: '太阳直射点接近南回归线，北半球昼短夜长，冷空气活动频繁且强度增大。',
+      fact: '大雪是节气名称，并非降雪量标准。节气当天是否下雪，取决于当地水汽和冷空气条件。',
+      agriculture: '设施农业保温防寒，牲畜防冻，冬小麦注意保墒；及时清除积雪，防止设施受压。',
+      custom: ['腌肉', '赏雪', '进补'],
+      health: '注意防寒保暖和防滑；心脑血管疾病患者避免清晨剧烈活动。',
+      poem: { text: '千山鸟飞绝，万径人踪灭。', author: '柳宗元', work: '《江雪》' },
+      palette: { bg1: '#dde5e8', bg2: '#bccbd1', accent: '#516f7b', deep: '#192a32' },
+      pentads: [
+        { name: '鹖鴠不鸣', note: '寒号鸟等鸟类因寒冷减少鸣叫。' },
+        { name: '虎始交', note: '古人观察到猛兽在此时开始求偶。' },
+        { name: '荔挺出', note: '马蔺等耐寒植物抽出新芽。' }
+      ]
+    },
+    {
+      id: 'dongzhi', name: '冬至', pinyin: 'Dōng Zhì', order: 21, season: 'winter', longitude: 270, dateHint: '12月21—23日', glyph: '复',
+      phrase: '日南至，夜最长', summary: '冬至时太阳直射南回归线，北半球白昼达到全年最短。此后太阳直射点北移，阳气渐生。',
+      astronomy: '太阳黄经为270°，太阳直射点位于南纬23.44°附近。北半球正午太阳高度达到全年最低。',
+      fact: '冬至后白昼虽然逐渐变长，但地面热量仍在持续散失，因此最冷的时段通常出现在冬至之后。',
+      agriculture: '做好防寒防冻、积肥造肥和农田水利建设；设施农业加强保温与光照管理。',
+      custom: ['吃饺子', '吃汤圆', '祭祖'],
+      health: '注意保暖和作息规律；适度进补，避免过度劳累和情绪波动。',
+      poem: { text: '天时人事日相催，冬至阳生春又来。', author: '杜甫', work: '《小至》' },
+      palette: { bg1: '#dce5e9', bg2: '#b9cad2', accent: '#4c6b7b', deep: '#162832' },
+      pentads: [
+        { name: '蚯蚓结', note: '蚯蚓在低温土壤中蜷缩成结。' },
+        { name: '麋角解', note: '古人观察到麋鹿角在此时脱落。' },
+        { name: '水泉动', note: '地下阳气开始萌动，泉水流动。' }
+      ]
+    },
+    {
+      id: 'xiaohan', name: '小寒', pinyin: 'Xiǎo Hán', order: 22, season: 'winter', longitude: 285, dateHint: '1月5—7日', glyph: '凛',
+      phrase: '寒气积久，冷意渐深', summary: '小寒表示天气寒冷，但尚未达到极点。此时常处于“三九”前后，是一年中较冷的时段之一。',
+      astronomy: '太阳直射点从南回归线向北移动，但北半球接收到的太阳辐射仍较少，地面持续失热。',
+      fact: '小寒通常比大寒更冷的情况并不少见。各地最冷时段与纬度、海拔和冷空气活动有关。',
+      agriculture: '加强冬小麦、油菜和果树防冻；设施农业注意保温、补光和通风。',
+      custom: ['吃腊八粥', '探梅', '准备年货'],
+      health: '重点防寒保暖，尤其是头颈、腰腹和足部；适度运动，避免清晨受寒。',
+      poem: { text: '小寒连大吕，欢鹊垒新巢。', author: '元稹', work: '《咏廿四气诗·小寒十二月节》' },
+      palette: { bg1: '#dce5e8', bg2: '#bdcbd2', accent: '#526f7d', deep: '#192b34' },
+      pentads: [
+        { name: '雁北乡', note: '大雁感知阳气萌动，开始向北迁徙。' },
+        { name: '鹊始巢', note: '喜鹊开始筑巢，为繁殖做准备。' },
+        { name: '雉始雊', note: '雉鸡开始鸣叫求偶。' }
+      ]
+    },
+    {
+      id: 'dahan', name: '大寒', pinyin: 'Dà Hán', order: 23, season: 'winter', longitude: 300, dateHint: '1月20—21日', glyph: '终',
+      phrase: '寒气之逆极，岁序将新', summary: '大寒是二十四节气的最后一个节气。天气寒冷到极点，也意味着旧岁将尽、新一轮节气循环即将开始。',
+      astronomy: '太阳直射点开始北移，北半球白昼逐渐增长，但仍处于全年较冷的阶段。',
+      fact: '大寒之后就是立春，二十四节气完成一次循环。节气不仅描述气候，也承载着农耕社会的时间秩序。',
+      agriculture: '继续做好防寒防冻和牲畜越冬管理；检修农机、积肥备耕，为春耕做准备。',
+      custom: ['喝腊八粥', '除尘', '备年货'],
+      health: '注意防寒保暖和饮食均衡；保持室内通风，预防呼吸道疾病。',
+      poem: { text: '旧雪未及消，新雪又拥户。', author: '邵雍', work: '《大寒吟》' },
+      palette: { bg1: '#d9e3e7', bg2: '#b8c8d0', accent: '#4c6978', deep: '#16272f' },
+      pentads: [
+        { name: '鸡始乳', note: '母鸡开始孵育小鸡。' },
+        { name: '征鸟厉疾', note: '猛禽为补充能量而频繁捕猎。' },
+        { name: '水泽腹坚', note: '水域结冰厚实，冰层延伸到水中央。' }
+      ]
+    }
+  ]
+};
+
+window.TIMEBOOK_DATA = TIMEBOOK_DATA;
+
+  </script>
+  <script>
+(() => {
+  'use strict';
+
+  const DATA = window.TIMEBOOK_DATA;
+  const TERMS = DATA.terms;
+  const SEASONS = DATA.seasons;
+  const DAY_MS = 86400000;
+  const RAD = Math.PI / 180;
+  const STORAGE_KEY = 'timebook.journal.v1';
+  const quizLength = 8;
+
+  const state = {
+    currentTermId: null,
+    selectedTermId: null,
+    currentTermStart: null,
+    nextTermStart: null,
+    pentadFilter: 'all',
+    journal: loadJournal(),
+    quiz: null
+  };
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const termByName = new Map(TERMS.map(term => [term.name, term]));
+  const termById = new Map(TERMS.map(term => [term.id, term]));
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
+  }
+
+  function formatDate(date, withYear = false) {
+    const formatter = new Intl.DateTimeFormat('zh-CN', withYear
+      ? { year: 'numeric', month: 'long', day: 'numeric' }
+      : { month: 'long', day: 'numeric' });
+    return formatter.format(date);
+  }
+
+  function formatDateTime(date) {
+    return new Intl.DateTimeFormat('zh-CN', {
+      month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(date);
+  }
+
+  function formatCountdown(ms) {
+    if (!Number.isFinite(ms) || ms < 0) return '正在交节';
+    const totalMinutes = Math.max(0, Math.ceil(ms / 60000));
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    if (days > 0) return `${days}天 ${hours}小时`;
+    if (hours > 0) return `${hours}小时 ${minutes}分`;
+    return `${minutes}分钟`;
+  }
+
+  function julianDay(date) {
+    return date.getTime() / DAY_MS + 2440587.5;
+  }
+
+  function sunLongitude(date) {
+    const T = (julianDay(date) - 2451545.0) / 36525;
+    const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+    const M = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+    const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M * RAD)
+      + (0.019993 - 0.000101 * T) * Math.sin(2 * M * RAD)
+      + 0.000289 * Math.sin(3 * M * RAD);
+    const omega = 125.04 - 1934.136 * T;
+    const lambda = L0 + C - 0.00569 - 0.00478 * Math.sin(omega * RAD);
+    return ((lambda % 360) + 360) % 360;
+  }
+
+  function obliquity(date) {
+    const T = (julianDay(date) - 2451545.0) / 36525;
+    const omega = 125.04 - 1934.136 * T;
+    return 23.439291 - 0.0130042 * T - 1.64e-7 * T * T + 5.036e-7 * T * T * T
+      + 0.00256 * Math.cos(omega * RAD);
+  }
+
+  function solarDeclinationFromLongitude(lambda, date = new Date()) {
+    return Math.asin(Math.sin(obliquity(date) * RAD) * Math.sin(lambda * RAD)) / RAD;
+  }
+
+  function formatDeclination(declination) {
+    if (Math.abs(declination) < 0.05) return '赤道附近';
+    return `${declination >= 0 ? '北纬' : '南纬'} ${Math.abs(declination).toFixed(1)}°`;
+  }
+
+  function findCurrentTerm(date) {
+    const lambda = sunLongitude(date);
+    let winner = TERMS[0];
+    let bestDelta = 360;
+    TERMS.forEach(term => {
+      const delta = (lambda - term.longitude + 360) % 360;
+      if (delta < bestDelta) {
+        bestDelta = delta;
+        winner = term;
+      }
+    });
+    return winner;
+  }
+
+  function signedLongitudeDifference(date, target) {
+    let delta = (sunLongitude(date) - target + 360) % 360;
+    if (delta > 180) delta -= 360;
+    return delta;
+  }
+
+  function findTermCrossing(targetLongitude, nearDate) {
+    let low = new Date(nearDate.getTime() - 24 * DAY_MS);
+    let high = new Date(nearDate.getTime() + 24 * DAY_MS);
+    let guard = 0;
+    while (signedLongitudeDifference(low, targetLongitude) > 0 && guard < 10) {
+      low = new Date(low.getTime() - DAY_MS);
+      guard += 1;
+    }
+    guard = 0;
+    while (signedLongitudeDifference(high, targetLongitude) < 0 && guard < 10) {
+      high = new Date(high.getTime() + DAY_MS);
+      guard += 1;
+    }
+    for (let i = 0; i < 48; i += 1) {
+      const mid = new Date((low.getTime() + high.getTime()) / 2);
+      if (signedLongitudeDifference(mid, targetLongitude) < 0) low = mid;
+      else high = mid;
+    }
+    return new Date((low.getTime() + high.getTime()) / 2);
+  }
+
+  function getTermContext(date = new Date()) {
+    const current = findCurrentTerm(date);
+    const next = TERMS[(current.order + 1) % TERMS.length];
+    const currentStart = findTermCrossing(current.longitude, date);
+    let nextStart = findTermCrossing(next.longitude, date);
+    if (nextStart <= date) nextStart = new Date(nextStart.getTime() + 365.2422 * DAY_MS);
+    return { current, next, currentStart, nextStart, lambda: sunLongitude(date) };
+  }
+
+  function applyTheme(term) {
+    const season = SEASONS[term.season];
+    const root = document.documentElement;
+    root.style.setProperty('--accent', term.palette.accent);
+    root.style.setProperty('--accent-deep', term.palette.deep);
+    root.style.setProperty('--season-soft', term.palette.bg2);
+    root.style.setProperty('--season-ink', season.ink);
+    document.body.dataset.season = term.season;
+    $('meta[name="theme-color"]')?.setAttribute('content', term.palette.deep);
+  }
+
+  function buildHeroOrbit() {
+    const orbit = $('#heroOrbit');
+    if (!orbit) return;
+    TERMS.forEach(term => {
+      const angle = (term.order / 24) * Math.PI * 2 - Math.PI / 2;
+      const radius = 45;
+      const x = 50 + Math.cos(angle) * radius;
+      const y = 50 + Math.sin(angle) * radius;
+      const node = document.createElement('span');
+      node.className = 'orbit-node';
+      node.dataset.termId = term.id;
+      node.textContent = term.name;
+      node.style.left = `${x}%`;
+      node.style.top = `${y}%`;
+      node.style.margin = '0';
+      node.style.transform = 'translate(-50%, -50%)';
+      orbit.appendChild(node);
+    });
+  }
+
+  function buildWheel() {
+    const container = $('#wheelTerms');
+    if (!container) return;
+    TERMS.forEach(term => {
+      const angle = (term.order / 24) * Math.PI * 2 - Math.PI / 2;
+      const radius = 42.5;
+      const x = 50 + Math.cos(angle) * radius;
+      const y = 50 + Math.sin(angle) * radius;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'wheel-term';
+      button.dataset.termId = term.id;
+      button.textContent = term.name;
+      button.setAttribute('aria-label', `${term.name}，太阳黄经${term.longitude}度`);
+      button.style.left = `${x}%`;
+      button.style.top = `${y}%`;
+      button.style.margin = '0';
+      button.style.transform = 'translate(-50%, -50%)';
+      button.addEventListener('click', () => selectTerm(term.id));
+      container.appendChild(button);
+    });
+  }
+
+  function updateOrbitMarker() {
+    $$('.orbit-node').forEach(node => {
+      node.classList.toggle('is-current', node.dataset.termId === state.currentTermId);
+    });
+  }
+
+  function selectTerm(termId, options = {}) {
+    const term = termById.get(termId);
+    if (!term) return;
+    state.selectedTermId = term.id;
+    applyTheme(term);
+    $$('.wheel-term').forEach(button => {
+      const active = button.dataset.termId === term.id;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    $('#wheelSeason').textContent = SEASONS[term.season].label;
+    $('#wheelTerm').textContent = term.name;
+    $('#wheelHint').textContent = `黄经 ${term.longitude}°`;
+    $('#orbitSeason').textContent = SEASONS[term.season].name;
+    $('#orbitTerm').textContent = term.name;
+    $('#orbitLongitude').textContent = `黄经 ${term.longitude}°`;
+    renderTermDetail(term);
+    updateObservationPrompt(term);
+    if (options.syncJournal !== false) syncJournalTerm(term.id);
+    renderCardPreview();
+    if (options.scroll) {
+      $('#wheel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function refreshLive() {
+    const context = getTermContext(new Date());
+    state.currentTermId = context.current.id;
+    state.currentTermStart = context.currentStart;
+    state.nextTermStart = context.nextStart;
+
+    const now = new Date();
+    $('#todayLabel').textContent = formatDate(now, true);
+    $('#liveSeason').textContent = SEASONS[context.current.season].name;
+    $('#liveTermName').textContent = context.current.name;
+    $('#liveTermPinyin').textContent = context.current.pinyin;
+    $('#liveTermPhrase').textContent = context.current.phrase;
+    $('#liveLongitude').textContent = `${context.lambda.toFixed(1)}°`;
+    $('#liveCountdown').textContent = formatCountdown(context.nextStart.getTime() - now.getTime());
+
+    $('#scienceLongitude').textContent = `${context.lambda.toFixed(1)}°`;
+    $('#scienceDeclination').textContent = formatDeclination(solarDeclinationFromLongitude(context.lambda, now));
+    $('#scienceNextTerm').textContent = `${context.next.name} · ${formatDate(context.nextStart)}`;
+    $('#scienceTitle').textContent = `此刻，太阳位于${context.current.name}`;
+    $('#scienceCopy').textContent = `太阳视黄经约为 ${context.lambda.toFixed(1)}°，下一个节气是${context.next.name}，预计在 ${formatDateTime(context.nextStart)} 交节。`;
+
+    updateOrbitMarker();
+    renderPentads();
+    if (!state.selectedTermId) selectTerm(context.current.id);
+    if (state.selectedTermId === context.current.id) {
+      $('#orbitSeason').textContent = SEASONS[context.current.season].name;
+      $('#orbitTerm').textContent = context.current.name;
+      $('#orbitLongitude').textContent = `黄经 ${context.current.longitude}°`;
+    }
+  }
+  function renderTermDetail(term) {
+    const season = SEASONS[term.season];
+    const panel = $('#termDetail');
+    if (!panel) return;
+    const declination = solarDeclinationFromLongitude(term.longitude);
+    panel.innerHTML = `
+      <div class="term-watermark" aria-hidden="true">${escapeHTML(term.glyph)}</div>
+      <div class="term-head">
+        <div>
+          <div class="term-label">${escapeHTML(season.name)} · ${escapeHTML(term.dateHint)}</div>
+          <div class="term-title-row">
+            <h3>${escapeHTML(term.name)}</h3>
+            <span>${escapeHTML(term.pinyin)}</span>
+          </div>
+          <div class="term-tags">
+            <span class="term-tag">${escapeHTML(term.phrase)}</span>
+            ${term.custom.map(item => `<span class="term-tag">${escapeHTML(item)}</span>`).join('')}
+          </div>
+        </div>
+        <span class="term-season-badge" title="${escapeHTML(season.name)}">${escapeHTML(season.label)}</span>
+      </div>
+      <p class="term-summary">${escapeHTML(term.summary)}</p>
+      <div class="term-metrics">
+        <div class="term-metric"><span>太阳视黄经</span><b>${term.longitude}°</b></div>
+        <div class="term-metric"><span>太阳直射点</span><b>${formatDeclination(declination)}</b></div>
+        <div class="term-metric"><span>大约交节</span><b>${escapeHTML(term.dateHint)}</b></div>
+      </div>
+      <div class="term-pentads">
+        ${term.pentads.map((pentad, index) => `
+          <div class="term-pentad">
+            <span>${['初候', '二候', '三候'][index]}</span>
+            <strong>${escapeHTML(pentad.name)}</strong>
+            <p>${escapeHTML(pentad.note)}</p>
+          </div>`).join('')}
+      </div>
+      <div class="term-bottom">
+        <div class="term-poem">
+          <blockquote>“${escapeHTML(term.poem.text)}”</blockquote>
+          <cite>${escapeHTML(term.poem.author)} ${escapeHTML(term.poem.work)}</cite>
+        </div>
+        <div class="term-science">
+          <span>科学解释</span>
+          <p>${escapeHTML(term.fact)}</p>
+          <p><b>农事：</b>${escapeHTML(term.agriculture)}</p>
+          <p><b>生活：</b>${escapeHTML(term.health)}</p>
+        </div>
+      </div>`;
+  }
+
+  function updateObservationPrompt(term) {
+    const prompt = term.pentads[1]?.note || term.pentads[0]?.note || '记录今天的风、云、光线和植物变化。';
+    $('#observationPrompt').textContent = `今天的观察线索：${prompt}`;
+  }
+
+  function getCurrentPentadIndex() {
+    if (!state.currentTermStart) return 0;
+    const elapsedDays = Math.max(0, (Date.now() - state.currentTermStart.getTime()) / DAY_MS);
+    return Math.min(2, Math.floor(elapsedDays / 5));
+  }
+
+  function renderPentads() {
+    const grid = $('#pentadGrid');
+    if (!grid) return;
+    const currentPentadIndex = getCurrentPentadIndex();
+    const cards = [];
+    TERMS.forEach(term => {
+      term.pentads.forEach((pentad, index) => {
+        const season = SEASONS[term.season];
+        const isCurrent = state.currentTermId === term.id && currentPentadIndex === index;
+        cards.push(`
+          <button class="pentad-card${isCurrent ? ' is-current' : ''}" type="button" data-term-id="${term.id}"
+            data-season="${term.season}" style="--card-accent:${season.color}"
+            aria-label="查看${term.name}${['初候', '二候', '三候'][index]}${pentad.name}">
+            <div class="pentad-card-top">
+              <span class="pentad-season">${season.label}季</span>
+              <span>${escapeHTML(term.name)} · ${['初候', '二候', '三候'][index]}</span>
+            </div>
+            <strong>${escapeHTML(pentad.name)}</strong>
+            <p>${escapeHTML(pentad.note)}</p>
+          </button>`);
+      });
+    });
+    grid.innerHTML = cards.join('');
+    applyPentadFilter(state.pentadFilter);
+  }
+
+  function applyPentadFilter(filter) {
+    state.pentadFilter = filter;
+    $$('.season-button').forEach(button => {
+      button.classList.toggle('is-active', button.dataset.season === filter);
+    });
+    $$('.pentad-card').forEach(card => {
+      card.hidden = filter !== 'all' && card.dataset.season !== filter;
+    });
+  }
+
+  function shuffle(items) {
+    const result = items.slice();
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  function makeOptions(correct, pool, count = 4) {
+    const others = shuffle(pool.filter(item => item !== correct)).slice(0, count - 1);
+    return shuffle([correct, ...others]);
+  }
+
+  function buildQuiz() {
+    const termNames = TERMS.map(term => term.name);
+    const pentadQuestions = shuffle(TERMS).slice(0, 3).map(term => {
+      const pentad = term.pentads[Math.floor(Math.random() * term.pentads.length)];
+      return {
+        prompt: `“${pentad.name}”属于哪个节气？`,
+        options: makeOptions(term.name, termNames),
+        correct: term.name,
+        explain: `“${pentad.name}”是${term.name}的三候之一：${pentad.note}`
+      };
+    });
+    const bank = [
+      {
+        prompt: '二十四节气中，排在第一的是哪一个？',
+        options: makeOptions('立春', termNames),
+        correct: '立春',
+        explain: '立春是二十四节气之首，太阳到达黄经315°时交节。'
+      },
+      {
+        prompt: '北半球白昼通常最长的是哪一个节气？',
+        options: makeOptions('夏至', termNames),
+        correct: '夏至',
+        explain: '夏至时太阳直射北回归线，北半球白昼达到全年最长。'
+      },
+      {
+        prompt: '北半球白昼通常最短的是哪一个节气？',
+        options: makeOptions('冬至', termNames),
+        correct: '冬至',
+        explain: '冬至时太阳直射南回归线，北半球白昼达到全年最短。'
+      },
+      {
+        prompt: '太阳视黄经为0°时，对应哪一个节气？',
+        options: makeOptions('春分', termNames),
+        correct: '春分',
+        explain: '春分时太阳黄经为0°，太阳直射赤道，昼夜接近等长。'
+      },
+      {
+        prompt: '太阳视黄经为90°时，对应哪一个节气？',
+        options: makeOptions('夏至', termNames),
+        correct: '夏至',
+        explain: '夏至的太阳视黄经为90°，太阳直射点位于北回归线附近。'
+      },
+      {
+        prompt: '太阳黄经每变化多少度，进入下一个节气？',
+        options: ['10°', '15°', '20°', '30°'],
+        correct: '15°',
+        explain: '一个回归年约360°，分为24个节气，每个节气对应太阳黄经变化15°。'
+      },
+      {
+        prompt: '按照传统物候体系，一个节气包含几候？',
+        options: ['2候', '3候', '4候', '5候'],
+        correct: '3候',
+        explain: '五日为一候，三候为一个节气，二十四节气共对应七十二候。'
+      },
+      {
+        prompt: '“雨生百谷”描述的是哪一个节气？',
+        options: makeOptions('谷雨', termNames),
+        correct: '谷雨',
+        explain: '谷雨是春季最后一个节气，降水增多，适宜谷物生长。'
+      }
+    ];
+    return shuffle([...bank, ...pentadQuestions]).slice(0, quizLength);
+  }
+
+  function startQuiz() {
+    state.quiz = {
+      questions: buildQuiz(),
+      index: 0,
+      score: 0,
+      answered: false,
+      selected: null
+    };
+    renderQuiz();
+  }
+
+  function renderQuiz() {
+    const body = $('#quizBody');
+    const progress = $('#quizProgress');
+    const feedback = $('#quizFeedback');
+    const nextButton = $('#quizNextBtn');
+    if (!state.quiz) return;
+    const quiz = state.quiz;
+    if (quiz.index >= quiz.questions.length) {
+      const ratio = quiz.score / quiz.questions.length;
+      let message = '再读一遍物候，你会发现时间留下的线索。';
+      if (ratio >= 0.9) message = '你已经能用天文位置和物候变化解释节气了。';
+      else if (ratio >= 0.7) message = '基础很稳，继续观察真实世界的变化。';
+      progress.textContent = '完成';
+      body.innerHTML = `
+        <div class="quiz-result">
+          <div>
+            <div class="quiz-score">${quiz.score} / ${quiz.questions.length}</div>
+            <p>${message}</p>
+            <button class="button button-primary" type="button" id="quizRestartBtn">重新练习</button>
+          </div>
+        </div>`;
+      feedback.textContent = '';
+      nextButton.hidden = true;
+      $('#quizRestartBtn')?.addEventListener('click', startQuiz);
+      return;
+    }
+    const question = quiz.questions[quiz.index];
+    progress.textContent = `${quiz.index + 1} / ${quiz.questions.length}`;
+    feedback.textContent = '';
+    nextButton.hidden = false;
+    nextButton.disabled = !quiz.answered;
+    nextButton.textContent = quiz.index === quiz.questions.length - 1 ? '查看成绩' : '下一题';
+    body.innerHTML = `
+      <p class="quiz-question">${escapeHTML(question.prompt)}</p>
+      <div class="quiz-options">
+        ${question.options.map((option, index) => `
+          <button class="quiz-option" type="button" data-option="${escapeHTML(option)}"
+            data-index="${index}" ${quiz.answered ? 'disabled' : ''}>${escapeHTML(option)}</button>`).join('')}
+      </div>
+      <p class="quiz-explain">${quiz.answered ? escapeHTML(question.explain) : ''}</p>`;
+    if (quiz.answered) {
+      $$('.quiz-option', body).forEach(button => {
+        if (button.dataset.option === question.correct) button.classList.add('is-correct');
+        if (button.dataset.option === quiz.selected && quiz.selected !== question.correct) {
+          button.classList.add('is-wrong');
+        }
+      });
+      feedback.textContent = quiz.selected === question.correct ? '回答正确' : `正确答案：${question.correct}`;
+    }
+  }
+
+  function answerQuiz(option) {
+    const quiz = state.quiz;
+    if (!quiz || quiz.answered) return;
+    const question = quiz.questions[quiz.index];
+    quiz.answered = true;
+    quiz.selected = option;
+    if (option === question.correct) quiz.score += 1;
+    renderQuiz();
+  }
+
+  function nextQuiz() {
+    const quiz = state.quiz;
+    if (!quiz || !quiz.answered) return;
+    quiz.index += 1;
+    quiz.answered = false;
+    quiz.selected = null;
+    renderQuiz();
+  }
+  function loadJournal() {
+    try {
+      const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function persistJournal() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.journal.slice(0, 30)));
+    } catch (error) {
+      showToast('浏览器未允许本地保存，本条记录只在当前页面有效');
+    }
+  }
+
+  function buildJournalSelect() {
+    const select = $('#journalTerm');
+    if (!select) return;
+    select.innerHTML = TERMS.map(term => `<option value="${term.id}">${term.name} · ${SEASONS[term.season].label}季</option>`).join('');
+  }
+
+  function syncJournalTerm(termId) {
+    const select = $('#journalTerm');
+    if (!select) return;
+    select.value = termId;
+    renderJournalPentadChoices(termId);
+    renderCardPreview();
+  }
+
+  function renderJournalPentadChoices(termId) {
+    const container = $('#journalPentads');
+    const term = termById.get(termId);
+    if (!container || !term) return;
+    container.innerHTML = term.pentads.map((pentad, index) => `
+      <label class="pentad-check">
+        <input type="checkbox" name="pentad" value="${escapeHTML(pentad.name)}" data-index="${index}">
+        <span>${escapeHTML(pentad.name)}</span>
+        <small>${['初候', '二候', '三候'][index]}</small>
+      </label>`).join('');
+  }
+
+  function renderJournalEntries() {
+    const container = $('#journalEntries');
+    if (!container) return;
+    if (!state.journal.length) {
+      container.innerHTML = '<p class="empty-state">还没有观察记录。选一个节气，写下第一条吧。</p>';
+      return;
+    }
+    container.innerHTML = state.journal.slice(0, 6).map(entry => {
+      const term = termById.get(entry.termId);
+      if (!term) return '';
+      return `
+        <article class="journal-entry">
+          <div class="entry-term">${escapeHTML(term.name)}</div>
+          <div class="entry-content">
+            <span class="entry-time">${escapeHTML(formatDateTime(new Date(entry.createdAt)))}</span>
+            <p>${escapeHTML(entry.note || '（未填写现场记录）')}</p>
+            ${entry.pentads?.length ? `<div class="entry-pentads">${entry.pentads.map(item => `<span>${escapeHTML(item)}</span>`).join('')}</div>` : ''}
+          </div>
+        </article>`;
+    }).join('');
+  }
+
+  function saveObservation(event) {
+    event.preventDefault();
+    const termId = $('#journalTerm').value;
+    const term = termById.get(termId);
+    const note = $('#journalNote').value.trim();
+    const pentads = $$('#journalPentads input:checked').map(input => input.value);
+    if (!term) return;
+    if (!note && !pentads.length) {
+      showToast('请至少勾选一候，或写下一条现场记录');
+      $('#journalNote').focus();
+      return;
+    }
+    state.journal.unshift({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      termId,
+      note,
+      pentads,
+      createdAt: new Date().toISOString()
+    });
+    persistJournal();
+    renderJournalEntries();
+    showToast(`已保存${term.name}观察记录`);
+  }
+
+  function wrapCanvasText(ctx, text, maxWidth) {
+    const lines = [];
+    let line = '';
+    Array.from(text).forEach(char => {
+      const test = line + char;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = char;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function drawRoundedRect(ctx, x, y, width, height, radius) {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
+  }
+
+  function renderCardPreview() {
+    const canvas = $('#cardCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    const term = termById.get(state.selectedTermId) || termById.get(state.currentTermId) || TERMS[0];
+    const season = SEASONS[term.season];
+    const note = ($('#journalNote')?.value || '').trim();
+    const checked = $$('#journalPentads input:checked').map(input => input.value);
+    const now = new Date();
+
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, term.palette.bg1);
+    gradient.addColorStop(0.66, term.palette.bg2);
+    gradient.addColorStop(1, term.palette.accent);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.save();
+    ctx.globalAlpha = 0.13;
+    ctx.strokeStyle = term.palette.deep;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(1040, 175, 310, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(1040, 175, 230, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(1040, 175, 150, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = term.palette.deep;
+    ctx.font = '600 30px "Songti SC", "STSong", "SimSun", serif';
+    ctx.fillText('时间之书', 92, 98);
+    ctx.font = '500 14px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.letterSpacing = '4px';
+    ctx.fillText('TIMEBOOK · 24 SOLAR TERMS', 92, 128);
+    ctx.letterSpacing = '0px';
+
+    ctx.fillStyle = 'rgba(255,255,255,.54)';
+    drawRoundedRect(ctx, 900, 74, 210, 54, 27);
+    ctx.fill();
+    ctx.fillStyle = term.palette.deep;
+    ctx.font = '600 18px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${season.name} · 第${term.order + 1}节气`, 1005, 108);
+    ctx.textAlign = 'left';
+
+    ctx.fillStyle = term.palette.deep;
+    ctx.font = '600 172px "Songti SC", "STSong", "SimSun", serif';
+    ctx.fillText(term.name, 88, 340);
+    ctx.font = '500 25px "Segoe UI", "Microsoft YaHei", sans-serif';
+    ctx.globalAlpha = 0.68;
+    ctx.fillText(term.pinyin, 96, 383);
+    ctx.globalAlpha = 1;
+
+    ctx.save();
+    ctx.translate(1010, 330);
+    ctx.rotate(-Math.PI / 18);
+    ctx.strokeStyle = term.palette.deep;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 96, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = term.palette.deep;
+    ctx.font = '600 54px "Songti SC", "STSong", "SimSun", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(term.glyph, 0, 3);
+    ctx.restore();
+
+    ctx.strokeStyle = term.palette.deep;
+    ctx.globalAlpha = 0.32;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(92, 442);
+    ctx.lineTo(1108, 442);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    const metrics = [
+      ['太阳视黄经', `${term.longitude}°`],
+      ['太阳直射点', formatDeclination(solarDeclinationFromLongitude(term.longitude, now))],
+      ['交节时间', term.dateHint]
+    ];
+    metrics.forEach(([label, value], index) => {
+      const x = 92 + index * 340;
+      ctx.fillStyle = 'rgba(23,39,45,.52)';
+      ctx.font = '500 16px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText(label, x, 494);
+      ctx.fillStyle = term.palette.deep;
+      ctx.font = '600 29px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText(value, x, 532);
+    });
+
+    ctx.fillStyle = 'rgba(23,39,45,.52)';
+    ctx.font = '600 16px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText('今日物候', 92, 630);
+    ctx.strokeStyle = 'rgba(23,39,45,.25)';
+    ctx.beginPath();
+    ctx.moveTo(208, 623);
+    ctx.lineTo(1108, 623);
+    ctx.stroke();
+
+    term.pentads.forEach((pentad, index) => {
+      const y = 688 + index * 88;
+      const active = !checked.length || checked.includes(pentad.name);
+      ctx.globalAlpha = active ? 1 : 0.35;
+      ctx.strokeStyle = term.palette.deep;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(92, y - 20, 24, 24);
+      if (active) {
+        ctx.beginPath();
+        ctx.moveTo(98, y - 8);
+        ctx.lineTo(104, y - 1);
+        ctx.lineTo(113, y - 14);
+        ctx.stroke();
+      }
+      ctx.fillStyle = term.palette.deep;
+      ctx.font = '600 17px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText(['初候', '二候', '三候'][index], 136, y);
+      ctx.font = '600 25px "Songti SC", "STSong", "SimSun", serif';
+      ctx.fillText(pentad.name, 208, y + 1);
+      ctx.globalAlpha = 1;
+    });
+
+    ctx.fillStyle = 'rgba(255,255,255,.42)';
+    drawRoundedRect(ctx, 74, 960, 1052, 300, 30);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(23,39,45,.18)';
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(23,39,45,.52)';
+    ctx.font = '600 16px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText('我的观察记录', 112, 1012);
+    ctx.fillStyle = term.palette.deep;
+    ctx.font = '400 29px "PingFang SC", "Microsoft YaHei", sans-serif';
+    const displayNote = note || '今天，我看见了时间在天空、风和草木之间留下的痕迹。';
+    const lines = wrapCanvasText(ctx, displayNote, 950).slice(0, 5);
+    lines.forEach((line, index) => ctx.fillText(line, 112, 1067 + index * 43));
+
+    ctx.fillStyle = 'rgba(23,39,45,.52)';
+    ctx.font = '600 15px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText('节气诗句', 92, 1348);
+    ctx.fillStyle = term.palette.deep;
+    ctx.font = '500 36px "Songti SC", "STSong", "SimSun", serif';
+    ctx.fillText(`“${term.poem.text}”`, 92, 1400);
+    ctx.font = '400 18px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.globalAlpha = 0.64;
+    ctx.fillText(`—— ${term.poem.author} ${term.poem.work}`, 92, 1442);
+    ctx.globalAlpha = 1;
+
+    ctx.strokeStyle = term.palette.deep;
+    ctx.globalAlpha = 0.24;
+    ctx.beginPath();
+    ctx.moveTo(92, 1502);
+    ctx.lineTo(1108, 1502);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(23,39,45,.48)';
+    ctx.font = '400 15px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText(`观察时间 ${formatDateTime(now)}`, 92, 1542);
+    ctx.textAlign = 'right';
+    ctx.fillText('把时间，读成一本书。', 1108, 1542);
+    ctx.textAlign = 'left';
+  }
+
+  function exportCard() {
+    const canvas = $('#cardCanvas');
+    const term = termById.get(state.selectedTermId) || TERMS[0];
+    if (!canvas) return;
+    renderCardPreview();
+    canvas.toBlob(blob => {
+      if (!blob) {
+        showToast('节气卡生成失败，请重试');
+        return;
+      }
+      const link = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0, 10).replaceAll('-', '');
+      link.href = URL.createObjectURL(blob);
+      link.download = `时间之书_${term.name}_${stamp}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1200);
+      showToast('节气卡已导出');
+    }, 'image/png');
+  }
+
+  function showToast(message) {
+    const toast = $('#toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
+  }
+
+  function refreshNoteCount() {
+    const note = $('#journalNote');
+    const count = $('#noteCount');
+    if (note && count) count.textContent = `${note.value.length} / 280`;
+  }
+
+  let previewFrame = 0;
+  function schedulePreview() {
+    window.cancelAnimationFrame(previewFrame);
+    previewFrame = window.requestAnimationFrame(renderCardPreview);
+  }
+
+  function bindEvents() {
+    $('#jumpTodayBtn')?.addEventListener('click', () => {
+      selectTerm(state.currentTermId, { scroll: true });
+    });
+    $('#seasonFilter')?.addEventListener('click', event => {
+      const button = event.target.closest('.season-button');
+      if (button) applyPentadFilter(button.dataset.season);
+    });
+    $('#pentadGrid')?.addEventListener('click', event => {
+      const card = event.target.closest('.pentad-card');
+      if (card) selectTerm(card.dataset.termId, { scroll: true });
+    });
+    $('#journalTerm')?.addEventListener('change', event => {
+      selectTerm(event.target.value, { syncJournal: false });
+      renderJournalPentadChoices(event.target.value);
+      renderCardPreview();
+    });
+    $('#journalPentads')?.addEventListener('change', renderCardPreview);
+    $('#journalNote')?.addEventListener('input', () => {
+      refreshNoteCount();
+      schedulePreview();
+    });
+    $('#journalForm')?.addEventListener('submit', saveObservation);
+    $('#exportCardBtn')?.addEventListener('click', exportCard);
+    $('#clearJournalBtn')?.addEventListener('click', () => {
+      if (!state.journal.length) return;
+      if (window.confirm('确定清空全部观察记录吗？')) {
+        state.journal = [];
+        persistJournal();
+        renderJournalEntries();
+        showToast('观察记录已清空');
+      }
+    });
+    $('#quizBody')?.addEventListener('click', event => {
+      const button = event.target.closest('.quiz-option');
+      if (button) answerQuiz(button.dataset.option);
+    });
+    $('#quizNextBtn')?.addEventListener('click', nextQuiz);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshLive();
+    });
+  }
+
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  }
+
+  function init() {
+    buildHeroOrbit();
+    buildWheel();
+    buildJournalSelect();
+    bindEvents();
+    refreshLive();
+    if (!state.selectedTermId) selectTerm(state.currentTermId);
+    startQuiz();
+    renderJournalEntries();
+    refreshNoteCount();
+    renderCardPreview();
+    registerServiceWorker();
+    window.setInterval(refreshLive, 60000);
+  }
+
+  init();
+})();
+
+  </script>
+</body>
+</html>

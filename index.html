@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="《时间之书》是一款面向公众的二十四节气天文与物候科普 Web 应用，用交互节气盘、七十二候、知识测验与观察手账建立完整学习闭环。">
+  <meta name="theme-color" content="#15272f">
+  <title>时间之书 · 二十四节气天文与物候科普</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="page-grain" aria-hidden="true"></div>
+
+  <header class="site-header" id="top">
+    <a class="brand" href="#top" aria-label="时间之书首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img"><circle cx="24" cy="24" r="18"></circle><circle cx="24" cy="24" r="11"></circle><path d="M24 4v7M24 37v7M4 24h7M37 24h7M9.9 9.9l5 5M33.1 33.1l5 5M38.1 9.9l-5 5M14.9 33.1l-5 5"></path><circle cx="24" cy="24" r="3"></circle></svg>
+      </span>
+      <span class="brand-copy"><strong>时间之书</strong><small>24 SOLAR TERMS</small></span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="#wheel">节气盘</a>
+      <a href="#pentads">七十二候</a>
+      <a href="#learning">知识实验室</a>
+      <a class="nav-pill" href="#journal">观察手账</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> 今日 · <span id="todayLabel">正在校准天时</span></p>
+        <h1 id="hero-title">把时间，<br><em>读成一本书。</em></h1>
+        <p class="hero-lead">从太阳黄经到草木荣枯，二十四节气是一套把天文、气候与生活连接起来的时间知识体系。转动节令盘，观察每一个十五度的变化。</p>
+
+        <article class="live-term" aria-live="polite">
+          <div class="live-term-top">
+            <span class="live-kicker">当前节气</span>
+            <span class="live-season" id="liveSeason">—</span>
+          </div>
+          <div class="live-term-main">
+            <strong id="liveTermName">—</strong>
+            <span id="liveTermPinyin">—</span>
+          </div>
+          <p id="liveTermPhrase">正在根据太阳视黄经计算当前节气。</p>
+          <div class="live-metrics">
+            <div><span>太阳黄经</span><b id="liveLongitude">—</b></div>
+            <div><span>距下一节气</span><b id="liveCountdown">—</b></div>
+          </div>
+        </article>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="#wheel">开始观时</a>
+          <button class="button button-ghost" id="jumpTodayBtn" type="button">定位今日节气</button>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orbit-halo orbit-halo-a"></div>
+        <div class="orbit-halo orbit-halo-b"></div>
+        <div class="hero-orbit" id="heroOrbit">
+          <div class="orbit-center">
+            <span class="orbit-season" id="orbitSeason">四时</span>
+            <strong id="orbitTerm">节气</strong>
+            <small id="orbitLongitude">黄经 —</small>
+          </div>
+        </div>
+        <div class="orbit-caption">
+          <span>太阳视黄经</span>
+          <strong>15° · 一个节气</strong>
+          <span>360° · 一岁循环</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wheel-section" id="wheel" aria-labelledby="wheel-title">
+      <header class="section-heading">
+        <p class="section-number">01 / 节令盘</p>
+        <div>
+          <h2 id="wheel-title">二十四节气，一部可旋转的天文历</h2>
+          <p>每个节气相隔约十五天，对应太阳在黄道上每运行十五度。点击圆环上的节气，查看它的天文位置、物候和农事线索。</p>
+        </div>
+      </header>
+
+      <div class="wheel-layout">
+        <div class="solar-wheel-wrap">
+          <div class="solar-wheel" id="solarWheel" role="group" aria-label="二十四节气交互圆盘">
+            <div class="wheel-ring wheel-ring-outer" aria-hidden="true"></div>
+            <div class="wheel-ring wheel-ring-inner" aria-hidden="true"></div>
+            <div class="wheel-seasons" aria-hidden="true">
+              <span class="wheel-season spring">春</span>
+              <span class="wheel-season summer">夏</span>
+              <span class="wheel-season autumn">秋</span>
+              <span class="wheel-season winter">冬</span>
+            </div>
+            <div class="wheel-center" aria-live="polite">
+              <span class="wheel-center-season" id="wheelSeason">春</span>
+              <strong id="wheelTerm">立春</strong>
+              <small id="wheelHint">黄经 315°</small>
+            </div>
+            <div class="wheel-terms" id="wheelTerms"></div>
+            <div class="wheel-pointer" aria-hidden="true"></div>
+          </div>
+          <p class="wheel-note">圆环从立春起顺时针展开；内圈虚线表示太阳视黄经每 60° 的季节分区。</p>
+        </div>
+
+        <article class="term-panel" id="termPanel" aria-live="polite">
+          <div id="termDetail"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section pentad-section" id="pentads" aria-labelledby="pentads-title">
+      <header class="section-heading">
+        <p class="section-number">02 / 七十二候</p>
+        <div>
+          <h2 id="pentads-title">五日为候，三候成节气</h2>
+          <p>古人把每个节气分为三候，以物候变化记录季节推进。点击任意一候，回到它所属的节气。</p>
+        </div>
+      </header>
+
+      <div class="season-filter" id="seasonFilter" role="group" aria-label="按季节筛选七十二候">
+        <button class="season-button is-active" type="button" data-season="all">全部</button>
+        <button class="season-button" type="button" data-season="spring">春</button>
+        <button class="season-button" type="button" data-season="summer">夏</button>
+        <button class="season-button" type="button" data-season="autumn">秋</button>
+        <button class="season-button" type="button" data-season="winter">冬</button>
+      </div>
+      <div class="pentad-grid" id="pentadGrid"></div>
+    </section>
+
+    <section class="section learning-section" id="learning" aria-labelledby="learning-title">
+      <header class="section-heading">
+        <p class="section-number">03 / 知识实验室</p>
+        <div>
+          <h2 id="learning-title">从“知道”到“会解释”</h2>
+          <p>先读天时数据，再用小测验检验理解。题目由节气与物候数据动态生成，每次练习都会重新组合。</p>
+        </div>
+      </header>
+
+      <div class="learning-grid">
+        <article class="science-card">
+          <div class="card-label">太阳观测台</div>
+          <div class="science-orbit" aria-hidden="true">
+            <div class="science-sun"></div>
+            <div class="science-earth"><span>地球</span></div>
+            <div class="science-axis"></div>
+          </div>
+          <h3 id="scienceTitle">此刻，太阳走到哪里？</h3>
+          <p id="scienceCopy">正在计算太阳视黄经和太阳直射点纬度。</p>
+          <dl class="science-stats">
+            <div><dt>太阳视黄经</dt><dd id="scienceLongitude">—</dd></div>
+            <div><dt>太阳直射点</dt><dd id="scienceDeclination">—</dd></div>
+            <div><dt>下一节气</dt><dd id="scienceNextTerm">—</dd></div>
+          </dl>
+          <div class="observation-prompt">
+            <span>今日观察</span>
+            <p id="observationPrompt">留意天空、风向和植物的变化，把它们写进观察手账。</p>
+          </div>
+        </article>
+
+        <article class="quiz-card" id="quizCard">
+          <div class="quiz-head">
+            <div>
+              <div class="card-label">节气小测</div>
+              <h3>你是怎样理解时间的？</h3>
+            </div>
+            <span class="quiz-progress" id="quizProgress">1 / 8</span>
+          </div>
+          <div class="quiz-body" id="quizBody"></div>
+          <div class="quiz-footer">
+            <span id="quizFeedback" role="status" aria-live="polite"></span>
+            <button class="button button-small button-primary" id="quizNextBtn" type="button">下一题</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section journal-section" id="journal" aria-labelledby="journal-title">
+      <header class="section-heading">
+        <p class="section-number">04 / 观察手账</p>
+        <div>
+          <h2 id="journal-title">把今天的节气，写成自己的记录</h2>
+          <p>选择节气、勾选已经观察到的物候，再写下一句现场记录。数据只保存在当前浏览器，不会上传。</p>
+        </div>
+      </header>
+
+      <div class="journal-grid">
+        <form class="journal-form" id="journalForm">
+          <label class="field-label" for="journalTerm">记录节气</label>
+          <select id="journalTerm" name="term"></select>
+
+          <fieldset class="pentad-picker">
+            <legend>今日观察到的物候</legend>
+            <div id="journalPentads"></div>
+          </fieldset>
+
+          <label class="field-label" for="journalNote">现场记录</label>
+          <textarea id="journalNote" name="note" rows="5" maxlength="280" placeholder="例如：今天傍晚风从东南来，楼下的玉兰已经冒出花苞……"></textarea>
+          <div class="field-meta"><span>最多 280 字</span><span id="noteCount">0 / 280</span></div>
+
+          <div class="journal-actions">
+            <button class="button button-primary" type="submit">保存观察</button>
+            <button class="button button-ghost" type="button" id="exportCardBtn">导出节气卡</button>
+          </div>
+          <p class="form-note">节气卡会根据当前选择和观察记录生成 PNG，可保存为个人学习成果。</p>
+        </form>
+
+        <aside class="journal-side">
+          <div class="journal-preview">
+            <div class="journal-preview-head">
+              <span>节气卡预览</span>
+              <small>1200 × 1600</small>
+            </div>
+            <canvas id="cardCanvas" width="1200" height="1600" aria-label="二十四节气观察卡预览"></canvas>
+          </div>
+          <div class="journal-history">
+            <div class="history-head"><h3>最近记录</h3><button class="text-button" id="clearJournalBtn" type="button">清空</button></div>
+            <div id="journalEntries"><p class="empty-state">还没有观察记录。选一个节气，写下第一条吧。</p></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <strong>时间之书</strong>
+      <p>二十四节气的天文与物候科普 · 纯前端 Web 应用</p>
+    </div>
+    <div class="footer-meta">
+      <p>节气交节时刻以中国科学院紫金山天文台等正式历算发布为准。</p>
+      <p>传统文化内容按公开通行资料整理；页面不依赖外部 AI 接口，可离线运行。</p>
+    </div>
+    <a href="#top">回到顶部 ↑</a>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <div class="noscript">本作品需要启用 JavaScript 才能使用节令盘、知识测验和观察手账。</div>
+  </noscript>
+
+  <script src="js/data.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>

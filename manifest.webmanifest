@@ -1,0 +1,19 @@
+{
+  "name": "时间之书 · 二十四节气科普",
+  "short_name": "时间之书",
+  "description": "二十四节气的天文与物候科普 Web 应用",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3eee4",
+  "theme_color": "#17272d",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
