@@ -8,8 +8,8 @@ app_js = (root / 'js' / 'app.js').read_text(encoding='utf-8')
 
 html = html.replace('  <link rel="manifest" href="manifest.webmanifest">\n', '')
 html = html.replace('  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">\n', '')
-html = html.replace('  <link rel="stylesheet" href="css/styles.css">', f'  <style>\n{css}\n  </style>')
-html = html.replace('  <script src="js/data.js" defer></script>\n  <script src="js/app.js" defer></script>',
+html = html.replace('  <link rel="stylesheet" href="css/styles.css?v=20261019-3">', f'  <style>\n{css}\n  </style>')
+html = html.replace('  <script src="js/data.js?v=20261019-3" defer></script>\n  <script src="js/app.js?v=20261019-3" defer></script>',
                     f'  <script>\n{data_js}\n  </script>\n  <script>\n{app_js}\n  </script>')
 
 out = root / '时间之书_离线版.html'

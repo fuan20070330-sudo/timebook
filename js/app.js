@@ -18,6 +18,7 @@
     pentadFilter: 'all',
     pentadQuery: '',
     pentadVisibleCount: PENTAD_PAGE_SIZE,
+    pentadLoadArmed: false,
     journal: loadJournal(),
     quiz: null
   };
@@ -342,7 +343,10 @@
 
   function applyPentadFilter(filter = state.pentadFilter, reset = false) {
     state.pentadFilter = filter;
-    if (reset) state.pentadVisibleCount = PENTAD_PAGE_SIZE;
+    if (reset) {
+      state.pentadVisibleCount = PENTAD_PAGE_SIZE;
+      state.pentadLoadArmed = false;
+    }
 
     $$('.season-button').forEach(button => {
       button.classList.toggle('is-active', button.dataset.season === filter);
@@ -403,13 +407,33 @@
     applyPentadFilter(state.pentadFilter);
   }
 
+  function maybeLoadMorePentads() {
+    const zone = $('#pentadLoadZone');
+    if (!state.pentadLoadArmed || !zone || zone.hidden) return;
+    const rect = zone.getBoundingClientRect();
+    const isNearViewport = rect.top <= window.innerHeight + 20 && rect.bottom >= 0;
+    if (!isNearViewport) return;
+    state.pentadLoadArmed = false;
+    loadMorePentads();
+  }
+
   function setupPentadObserver() {
     const zone = $('#pentadLoadZone');
     if (!zone || !('IntersectionObserver' in window)) return;
     const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) loadMorePentads();
-    }, { rootMargin: '0px 0px 160px 0px', threshold: 0.01 });
+      if (entries.some(entry => entry.isIntersecting)) maybeLoadMorePentads();
+    }, { rootMargin: '0px', threshold: 0.2 });
     observer.observe(zone);
+
+    const armLoad = () => {
+      state.pentadLoadArmed = true;
+      window.requestAnimationFrame(maybeLoadMorePentads);
+    };
+    window.addEventListener('wheel', armLoad, { passive: true });
+    window.addEventListener('touchmove', armLoad, { passive: true });
+    window.addEventListener('keydown', event => {
+      if (['PageDown', 'ArrowDown', ' ', 'Spacebar'].includes(event.key)) armLoad();
+    });
   }
 
   function shuffle(items) {
@@ -959,7 +983,14 @@
 
   function registerServiceWorker() {
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      const hadController = Boolean(navigator.serviceWorker.controller);
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController || refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+      navigator.serviceWorker.register('./sw.js').then(registration => registration.update()).catch(() => {});
     }
   }
 

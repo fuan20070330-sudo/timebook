@@ -1,10 +1,10 @@
-const CACHE = 'timebook-v2';
+const CACHE = 'timebook-v3';
 const ASSETS = [
   './',
   './index.html',
-  './css/styles.css',
-  './js/data.js',
-  './js/app.js',
+  './css/styles.css?v=20261019-3',
+  './js/data.js?v=20261019-3',
+  './js/app.js?v=20261019-3',
   './manifest.webmanifest',
   './assets/icon.svg'
 ];
@@ -16,18 +16,14 @@ self.addEventListener('activate', event => {
 });
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request).then(response => {
+  event.respondWith(fetch(event.request).then(response => {
+    if (response.ok) {
       const copy = response.clone();
       caches.open(CACHE).then(cache => cache.put(event.request, copy));
-      return response;
-    }).catch(() => caches.match(event.request).then(hit => hit || caches.match('./index.html'))));
-    return;
-  }
-  event.respondWith(caches.match(event.request).then(hit => hit || fetch(event.request).then(response => {
-    const copy = response.clone();
-    caches.open(CACHE).then(cache => cache.put(event.request, copy));
+    }
     return response;
+  }).catch(() => caches.match(event.request).then(hit => {
+    if (hit) return hit;
+    return caches.match('./index.html');
   })));
 });
-

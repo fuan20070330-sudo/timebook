@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+(async()=>{
+ const browser=await chromium.launch({headless:true,executablePath:'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});
+ const errors=[]; page.on('console',m=>{if(m.type()==='error') errors.push(m.text())}); page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8766/',{waitUntil:'networkidle'});
+ await page.waitForTimeout(400);
+ const initial=await page.locator('.pentad-card:visible').count();
+ await page.click('a[href="#pentads"]');
+ await page.waitForTimeout(900);
+ const afterNav=await page.locator('.pentad-card:visible').count();
+ await page.mouse.move(700,700);
+ await page.mouse.wheel(0,420);
+ await page.waitForTimeout(700);
+ const afterWheel1=await page.locator('.pentad-card:visible').count();
+ await page.mouse.wheel(0,420);
+ await page.waitForTimeout(700);
+ const afterWheel2=await page.locator('.pentad-card:visible').count();
+ await page.fill('#pentadSearch','立春'); await page.waitForTimeout(200);
+ const search={visible:await page.locator('.pentad-card:visible').count(),terms:await page.locator('.pentad-card:visible').evaluateAll(nodes=>[...new Set(nodes.map(n=>n.dataset.termName))])};
+ console.log(JSON.stringify({initial,afterNav,afterWheel1,afterWheel2,search,errors},null,2));
+ await browser.close();
+})();
